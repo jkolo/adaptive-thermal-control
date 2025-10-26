@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN, PLATFORMS
+from .coordinator import AdaptiveThermalCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,7 +58,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Store entry data in hass.data
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data
+
+    # Initialize coordinator
+    coordinator = AdaptiveThermalCoordinator(hass, entry)
+
+    # Check if coordinator is ready (sensors available)
+    try:
+        await coordinator.async_check_ready()
+    except Exception as err:
+        _LOGGER.error("Coordinator not ready: %s", err)
+        return False
+
+    # Store coordinator in hass.data
+    hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    # Perform first data refresh
+    await coordinator.async_config_entry_first_refresh()
 
     # Forward entry setup to platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS_LIST)
@@ -90,8 +106,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     if unload_ok:
-        # Remove entry data from hass.data
-        hass.data[DOMAIN].pop(entry.entry_id)
+        # Remove coordinator and entry data from hass.data
+        coordinator = hass.data[DOMAIN].pop(entry.entry_id)
+
+        # Clean up coordinator resources
+        if hasattr(coordinator, 'clear_cache'):
+            coordinator.clear_cache()
+
         _LOGGER.info(
             "Adaptive Thermal Control entry unloaded successfully: %s", entry.entry_id
         )

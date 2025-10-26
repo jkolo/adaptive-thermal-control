@@ -15,6 +15,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_CONTROLLER_TYPE,
@@ -39,6 +40,7 @@ from .const import (
     PRESET_SLEEP,
     UPDATE_INTERVAL,
 )
+from .coordinator import AdaptiveThermalCoordinator
 from .pi_controller import PIController
 
 _LOGGER = logging.getLogger(__name__)
@@ -58,17 +60,17 @@ async def async_setup_entry(
     """
     _LOGGER.info("Setting up Adaptive Thermal Control climate platform")
 
-    # Get configuration from entry
-    config = hass.data[DOMAIN][entry.entry_id]
+    # Get coordinator from hass.data
+    coordinator = hass.data[DOMAIN][entry.entry_id]
 
     # Create climate entities for each thermostat
     entities = []
-    thermostats = config.get("thermostats", [])
+    thermostats = coordinator.thermostats_config
 
     for idx, thermostat_config in enumerate(thermostats):
         entity = AdaptiveThermalClimate(
             hass=hass,
-            entry=entry,
+            coordinator=coordinator,
             config=thermostat_config,
             unique_id=f"{entry.entry_id}_thermostat_{idx}",
         )
@@ -80,7 +82,7 @@ async def async_setup_entry(
     _LOGGER.info("Added %d climate entities", len(entities))
 
 
-class AdaptiveThermalClimate(ClimateEntity):
+class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
     """Representation of an Adaptive Thermal Control climate entity."""
 
     _attr_has_entity_name = True
@@ -94,7 +96,7 @@ class AdaptiveThermalClimate(ClimateEntity):
     def __init__(
         self,
         hass: HomeAssistant,
-        entry: ConfigEntry,
+        coordinator: AdaptiveThermalCoordinator,
         config: dict[str, Any],
         unique_id: str,
     ) -> None:
@@ -102,12 +104,14 @@ class AdaptiveThermalClimate(ClimateEntity):
 
         Args:
             hass: Home Assistant instance
-            entry: ConfigEntry
+            coordinator: Data update coordinator
             config: Thermostat configuration
             unique_id: Unique ID for this entity
         """
+        super().__init__(coordinator)
+
         self.hass = hass
-        self._entry = entry
+        self.coordinator = coordinator
         self._config = config
         self._attr_unique_id = unique_id
 
@@ -160,6 +164,31 @@ class AdaptiveThermalClimate(ClimateEntity):
             ATTR_HEATING_DEMAND: self._heating_demand,
             ATTR_CONTROLLER_TYPE: self._controller_type,
         }
+
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator.
+
+        This is called automatically when coordinator updates its data.
+        """
+        # Update current temperature from coordinator data
+        if self.coordinator.data:
+            sensor_data = self.coordinator.data.get("sensor_data", {})
+            room_temps = sensor_data.get("room_temperatures", {})
+
+            room_name = self._config.get(CONF_ROOM_NAME)
+            if room_name and room_name in room_temps:
+                self._attr_current_temperature = room_temps[room_name]
+
+        # Update HVAC action based on valve position
+        if self._attr_hvac_mode == HVACMode.OFF:
+            self._attr_hvac_action = HVACAction.OFF
+        elif self._valve_position > 5.0:  # Threshold: 5% valve opening
+            self._attr_hvac_action = HVACAction.HEATING
+        else:
+            self._attr_hvac_action = HVACAction.IDLE
+
+        # Write updated state
+        self.async_write_ha_state()
 
     async def async_update(self) -> None:
         """Fetch latest state from Home Assistant.

@@ -11,10 +11,10 @@
 ## Cele fazy
 
 - [x] Struktura custom component zgodna z wytycznymi HA
-- [ ] Możliwość konfiguracji przez UI (Config Flow)
-- [ ] Podstawowe climate entities (termostaty pokojowe)
-- [ ] Prosty regulator PI jako fallback (przed nauczeniem MPC)
-- [ ] Integracja z Home Assistant recorder (odczyt danych historycznych)
+- [x] Możliwość konfiguracji przez UI (Config Flow)
+- [x] Podstawowe climate entities (termostaty pokojowe)
+- [x] Prosty regulator PI jako fallback (przed nauczeniem MPC)
+- [x] Integracja z Home Assistant recorder (odczyt danych historycznych)
 
 ---
 
