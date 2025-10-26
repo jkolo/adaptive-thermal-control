@@ -1,0 +1,87 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Global Configuration",
+        "description": "Configure global settings for Adaptive Thermal Control",
+        "data": {
+          "outdoor_temp_entity": "Outdoor Temperature Sensor",
+          "heating_switch_entity": "Heating System Switch",
+          "energy_price_entity": "Energy Price Sensor",
+          "weather_entity": "Weather Entity",
+          "solar_irradiance_entity": "Solar Irradiance Sensor",
+          "energy_consumption_entity": "Energy Consumption Sensor",
+          "max_boiler_power": "Maximum Boiler Power (kW)"
+        }
+      },
+      "add_thermostat": {
+        "title": "Add Thermostat ({count} configured)",
+        "description": "Configure a room thermostat",
+        "data": {
+          "room_name": "Room Name",
+          "room_temp_entity": "Room Temperature Sensor",
+          "valve_entities": "Valve Control Entities",
+          "water_temp_in_entity": "Water Inlet Temperature Sensor",
+          "water_temp_out_entity": "Water Outlet Temperature Sensor",
+          "valve_open_time": "Valve Opening Time (seconds)",
+          "valve_close_time": "Valve Closing Time (seconds)",
+          "neighboring_rooms": "Neighboring Rooms",
+          "window_orientations": "Window Orientations",
+          "room_area": "Room Area (m²)",
+          "min_temp": "Minimum Temperature (°C)",
+          "max_temp": "Maximum Temperature (°C)"
+        }
+      },
+      "add_another": {
+        "title": "Add Another Thermostat?",
+        "description": "You have configured {count} thermostat(s). Do you want to add another?",
+        "data": {
+          "add_another": "Add another thermostat"
+        }
+      }
+    },
+    "error": {
+      "entity_not_found": "Entity not found in Home Assistant",
+      "required": "This field is required",
+      "min_max_invalid": "Minimum temperature must be less than maximum temperature"
+    },
+    "abort": {
+      "already_configured": "This integration is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "description": "Configure options for Adaptive Thermal Control"
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "adaptive_thermal_control": {
+        "state_attributes": {
+          "valve_position": {
+            "name": "Valve Position"
+          },
+          "heating_demand": {
+            "name": "Heating Demand"
+          },
+          "controller_type": {
+            "name": "Controller Type"
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "preset_mode": {
+      "options": {
+        "home": "Home",
+        "away": "Away",
+        "sleep": "Sleep",
+        "manual": "Manual"
+      }
+    }
+  }
+}

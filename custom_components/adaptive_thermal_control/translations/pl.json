@@ -1,0 +1,87 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Konfiguracja Globalna",
+        "description": "Skonfiguruj ustawienia globalne dla Adaptacyjnego Sterowania Cieplnego",
+        "data": {
+          "outdoor_temp_entity": "Czujnik Temperatury Zewntrznej",
+          "heating_switch_entity": "PrzeBcznik Systemu Grzewczego",
+          "energy_price_entity": "Czujnik Ceny Energii",
+          "weather_entity": "Encja Pogody",
+          "solar_irradiance_entity": "Czujnik NasBonecznienia",
+          "energy_consumption_entity": "Czujnik Zu|ycia Energii",
+          "max_boiler_power": "Maksymalna Moc KotBa (kW)"
+        }
+      },
+      "add_thermostat": {
+        "title": "Dodaj Termostat (skonfigurowano {count})",
+        "description": "Skonfiguruj termostat pomieszczenia",
+        "data": {
+          "room_name": "Nazwa Pomieszczenia",
+          "room_temp_entity": "Czujnik Temperatury Pomieszczenia",
+          "valve_entities": "Encje Sterujce Zaworami",
+          "water_temp_in_entity": "Czujnik Temperatury Wody na Wej[ciu",
+          "water_temp_out_entity": "Czujnik Temperatury Wody na Wyj[ciu",
+          "valve_open_time": "Czas Otwierania Zaworu (sekundy)",
+          "valve_close_time": "Czas Zamykania Zaworu (sekundy)",
+          "neighboring_rooms": "Ssiadujce Pomieszczenia",
+          "window_orientations": "Orientacja Okien",
+          "room_area": "Powierzchnia Pomieszczenia (m²)",
+          "min_temp": "Temperatura Minimalna (°C)",
+          "max_temp": "Temperatura Maksymalna (°C)"
+        }
+      },
+      "add_another": {
+        "title": "Doda Kolejny Termostat?",
+        "description": "Skonfigurowano {count} termostat(ów). Czy chcesz doda kolejny?",
+        "data": {
+          "add_another": "Dodaj kolejny termostat"
+        }
+      }
+    },
+    "error": {
+      "entity_not_found": "Encja nie zostaBa znaleziona w Home Assistant",
+      "required": "To pole jest wymagane",
+      "min_max_invalid": "Temperatura minimalna musi by mniejsza ni| maksymalna"
+    },
+    "abort": {
+      "already_configured": "Ta integracja jest ju| skonfigurowana"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcje",
+        "description": "Skonfiguruj opcje dla Adaptacyjnego Sterowania Cieplnego"
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "adaptive_thermal_control": {
+        "state_attributes": {
+          "valve_position": {
+            "name": "Pozycja Zaworu"
+          },
+          "heating_demand": {
+            "name": "Zapotrzebowanie na CiepBo"
+          },
+          "controller_type": {
+            "name": "Typ Regulatora"
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "preset_mode": {
+      "options": {
+        "home": "Dom",
+        "away": "Nieobecno[",
+        "sleep": "Sen",
+        "manual": "Rczny"
+      }
+    }
+  }
+}
