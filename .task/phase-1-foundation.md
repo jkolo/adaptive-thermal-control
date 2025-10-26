@@ -188,15 +188,15 @@
       - dt = 600s (10 min)
     - [x] Metoda `update(setpoint, measured, dt) -> control_signal`
 
-- [ ] **T1.4.2:** Integruj PI controller z climate entity
+- [x] **T1.4.2:** Integruj PI controller z climate entity
   - **Priorytet:** Wysoki
   - **Czas:** 2h
   - **Zależności:** T1.4.1, T1.3.4
   - **Kryteria akceptacji:**
-    - [ ] Climate entity używa PI gdy MPC niedostępny
-    - [ ] Co 10 minut: wywołaj `pi.update()`, ustaw zawór
-    - [ ] Logowanie decyzji regulatora (INFO level)
-    - [ ] Atrybut `controller_type: "PI"` w climate entity
+    - [x] Climate entity używa PI gdy MPC niedostępny
+    - [x] Co 10 minut: wywołaj `pi.update()`, ustaw zawór
+    - [x] Logowanie decyzji regulatora (INFO level)
+    - [x] Atrybut `controller_type: "PI"` w climate entity
 
 - [ ] **T1.4.3:** Testy PI controller
   - **Priorytet:** Średni
@@ -212,66 +212,66 @@
 
 ### 1.5 Integracja z Home Assistant Recorder
 
-- [ ] **T1.5.1:** Implementuj `history_helper.py` - odczyt danych historycznych
+- [x] **T1.5.1:** Implementuj `history_helper.py` - odczyt danych historycznych
   - **Priorytet:** Wysoki
   - **Czas:** 4h
   - **Zależności:** T1.1.3
   - **Kryteria akceptacji:**
-    - [ ] Funkcja `get_history(entity_id, start_time, end_time) -> List[State]`
-    - [ ] Wykorzystanie `history.get_states()` z HA
-    - [ ] Filtrowanie nieprawidłowych danych (None, "unavailable", "unknown")
-    - [ ] Konwersja do NumPy arrays
-    - [ ] Cache dla często używanych zapytań
+    - [x] Funkcja `get_history(entity_id, start_time, end_time) -> List[State]`
+    - [x] Wykorzystanie `history.get_states()` z HA
+    - [x] Filtrowanie nieprawidłowych danych (None, "unavailable", "unknown")
+    - [x] Konwersja do NumPy arrays
+    - [x] Cache dla często używanych zapytań
 
-- [ ] **T1.5.2:** Implementuj zbieranie danych treningowych
+- [x] **T1.5.2:** Implementuj zbieranie danych treningowych
   - **Priorytet:** Średni
   - **Czas:** 3h
   - **Zależności:** T1.5.1
   - **Kryteria akceptacji:**
-    - [ ] Funkcja `collect_training_data(room_id, days=30) -> DataFrame`
-    - [ ] Zbiera dane:
+    - [x] Funkcja `collect_training_data(room_id, days=30) -> DataFrame`
+    - [x] Zbiera dane:
       - Temperatura pokoju (co 1-5 min)
       - Temperatura zewnętrzna
       - Pozycje zaworów
       - Temperatury sąsiednich pokoi
-    - [ ] Resampling do 10-minutowych interwałów
-    - [ ] Obsługa brakujących danych (interpolacja liniowa)
+    - [x] Resampling do 10-minutowych interwałów
+    - [x] Obsługa brakujących danych (interpolacja liniowa)
 
-- [ ] **T1.5.3:** Walidacja minimalnej ilości danych
+- [x] **T1.5.3:** Walidacja minimalnej ilości danych
   - **Priorytet:** Średni
   - **Czas:** 1h
   - **Zależności:** T1.5.2
   - **Kryteria akceptacji:**
-    - [ ] Sprawdzenie czy jest min. 7 dni danych
-    - [ ] Ostrzeżenie jeśli danych < 7 dni → fallback na PI
-    - [ ] Informacja jeśli 7-30 dni → "uczenie się w toku"
-    - [ ] OK jeśli > 30 dni → "gotowy do MPC"
+    - [x] Sprawdzenie czy jest min. 7 dni danych
+    - [x] Ostrzeżenie jeśli danych < 7 dni → fallback na PI
+    - [x] Informacja jeśli 7-30 dni → "uczenie się w toku"
+    - [x] OK jeśli > 30 dni → "gotowy do MPC"
 
 ---
 
 ### 1.6 Coordinator (Data Update Coordinator)
 
-- [ ] **T1.6.1:** Implementuj `coordinator.py` - główny koordynator aktualizacji
+- [x] **T1.6.1:** Implementuj `coordinator.py` - główny koordynator aktualizacji
   - **Priorytet:** Wysoki
   - **Czas:** 4h
   - **Zależności:** T1.3.2
   - **Kryteria akceptacji:**
-    - [ ] Klasa `AdaptiveThermalCoordinator(DataUpdateCoordinator)`
-    - [ ] Metoda `_async_update_data()` co 10 minut
-    - [ ] Zbiera dane ze wszystkich sensorów (temp pokoi, temp zewn, etc.)
-    - [ ] Wywołuje algorytm sterowania (PI lub MPC)
-    - [ ] Aktualizuje wszystkie climate entities
-    - [ ] Error handling (sensor unavailable)
+    - [x] Klasa `AdaptiveThermalCoordinator(DataUpdateCoordinator)`
+    - [x] Metoda `_async_update_data()` co 10 minut
+    - [x] Zbiera dane ze wszystkich sensorów (temp pokoi, temp zewn, etc.)
+    - [x] Wywołuje algorytm sterowania (PI lub MPC)
+    - [x] Aktualizuje wszystkie climate entities
+    - [x] Error handling (sensor unavailable)
 
-- [ ] **T1.6.2:** Implementuj logikę koordynacji stref (podstawowa wersja)
+- [x] **T1.6.2:** Implementuj logikę koordynacji stref (podstawowa wersja)
   - **Priorytet:** Średni
   - **Czas:** 3h
   - **Zależności:** T1.6.1
   - **Kryteria akceptacji:**
-    - [ ] Jeśli podana max moc pieca → oblicz łączną moc
-    - [ ] Jeśli przekroczono → podstawowy fair-share (proporcjonalne skalowanie)
-    - [ ] Logowanie ostrzeżenia jeśli limit przekroczony
-    - [ ] Atrybut `total_power_usage` w coordinator
+    - [x] Jeśli podana max moc pieca → oblicz łączną moc
+    - [x] Jeśli przekroczono → podstawowy fair-share (proporcjonalne skalowanie)
+    - [x] Logowanie ostrzeżenia jeśli limit przekroczony
+    - [x] Atrybut `total_power_usage` w coordinator
 
 ---
 

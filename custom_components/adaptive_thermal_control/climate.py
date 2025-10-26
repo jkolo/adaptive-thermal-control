@@ -26,15 +26,20 @@ from .const import (
     CONF_ROOM_TEMP_ENTITY,
     CONF_VALVE_ENTITIES,
     CONTROLLER_TYPE_PI,
+    DEFAULT_DT,
+    DEFAULT_KP,
     DEFAULT_MAX_TEMP,
     DEFAULT_MIN_TEMP,
     DEFAULT_TARGET_TEMP,
+    DEFAULT_TI,
     DOMAIN,
     PRESET_AWAY,
     PRESET_HOME,
     PRESET_MANUAL,
     PRESET_SLEEP,
+    UPDATE_INTERVAL,
 )
+from .pi_controller import PIController
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -127,6 +132,15 @@ class AdaptiveThermalClimate(ClimateEntity):
         self._heating_demand: float = 0.0  # 0-100%
         self._controller_type: str = CONTROLLER_TYPE_PI
 
+        # Initialize PI controller
+        self._pi_controller = PIController(
+            kp=DEFAULT_KP,
+            ti=DEFAULT_TI,
+            dt=DEFAULT_DT,
+            output_min=0.0,
+            output_max=100.0,
+        )
+
         _LOGGER.info(
             "Initialized climate entity: %s (room temp: %s, valves: %s)",
             self._attr_name,
@@ -160,7 +174,7 @@ class AdaptiveThermalClimate(ClimateEntity):
             try:
                 self._attr_current_temperature = float(temp_state.state)
                 _LOGGER.debug(
-                    "Updated temperature for %s: %.1f°C",
+                    "Updated temperature for %s: %.1fï¿½C",
                     self._attr_name,
                     self._attr_current_temperature,
                 )
@@ -195,7 +209,7 @@ class AdaptiveThermalClimate(ClimateEntity):
             return
 
         _LOGGER.info(
-            "Setting target temperature for %s to %.1f°C",
+            "Setting target temperature for %s to %.1fï¿½C",
             self._attr_name,
             temperature,
         )
@@ -256,13 +270,16 @@ class AdaptiveThermalClimate(ClimateEntity):
         self.async_write_ha_state()
 
     async def _async_control_heating(self) -> None:
-        """Execute heating control logic.
+        """Execute heating control logic using PI controller.
 
-        This is a placeholder - actual PI/MPC control will be implemented later.
-        For now, it's a simple proportional control.
+        The PI controller provides smooth, stable temperature control with
+        anti-windup protection. This is the fallback controller used before
+        MPC is available or when MPC cannot be used.
         """
         if self._attr_hvac_mode == HVACMode.OFF:
             await self._set_valve_position(0.0)
+            # Reset PI controller when heating is off
+            self._pi_controller.reset()
             return
 
         if self._attr_current_temperature is None:
@@ -272,17 +289,19 @@ class AdaptiveThermalClimate(ClimateEntity):
             )
             return
 
-        # Simple proportional control (placeholder for PI/MPC)
-        error = self._attr_target_temperature - self._attr_current_temperature
-        Kp = 20.0  # Proportional gain (temporary, will be replaced by PI controller)
+        # Use PI controller to calculate valve position
+        valve_position = self._pi_controller.update(
+            setpoint=self._attr_target_temperature,
+            measurement=self._attr_current_temperature,
+            dt=UPDATE_INTERVAL,  # Use configured update interval
+        )
 
-        # Calculate valve position (0-100%)
-        valve_position = max(0.0, min(100.0, Kp * error))
-
-        _LOGGER.debug(
-            "Control for %s: error=%.2f°C, valve=%.1f%%",
+        # Log control decision
+        _LOGGER.info(
+            "PI control for %s: target=%.1fÂ°C, current=%.1fÂ°C, valve=%.1f%%",
             self._attr_name,
-            error,
+            self._attr_target_temperature,
+            self._attr_current_temperature,
             valve_position,
         )
 
