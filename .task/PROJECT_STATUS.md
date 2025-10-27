@@ -8,11 +8,11 @@
 
 | Metryka | Wartość |
 |---------|---------|
-| **Faza projektu** | 🟡 Faza 2 - Model termiczny (23% ukończone) |
-| **Postęp ogólny** | 24% (Faza 1 ukończona, Faza 2 w trakcie) |
-| **Czas do v1.0** | ~4.7 miesięcy (1.3 miesiąca postępu) |
-| **Otwarte zadania** | ~169 (wszystkie fazy) |
-| **Ukończone zadania** | 28/197 (14%) |
+| **Faza projektu** | 🟡 Faza 2 - Model termiczny (34% ukończone) |
+| **Postęp ogólny** | 26% (Faza 1 ukończona, Faza 2 w trakcie) |
+| **Czas do v1.0** | ~4.5 miesięcy (1.5 miesiąca postępu) |
+| **Otwarte zadania** | ~167 (wszystkie fazy) |
+| **Ukończone zadania** | 30/197 (15%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -22,13 +22,13 @@
 | Faza | Status | Postęp | Czas | Priorytet |
 |------|--------|--------|------|-----------|
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
-| [Faza 2: Model termiczny](./phase-2-thermal-model.md) | 🟡 W trakcie | 23% (8/35 zadań) | 3 tyg pozostało | **WYSOKI** |
+| [Faza 2: Model termiczny](./phase-2-thermal-model.md) | 🟡 W trakcie | 34% (12/35 zadań) | 2.5 tyg pozostało | **WYSOKI** |
 | [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🔴 Nie rozpoczęte | 0% (0/38 zadań) | 6-8 tyg | Wysoki |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (28 ukończonych, 169 pozostałych)
+**Łącznie:** 197 zadań (30 ukończonych, 167 pozostałych)
 
 ---
 
@@ -36,7 +36,7 @@
 
 ```
 Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
-Miesiąc 2: [██████░░░░░░░░░░░░░░░░░░░░░░] Faza 2 (23% 🟡)
+Miesiąc 2: [█████████░░░░░░░░░░░░░░░░░░░] Faza 2 (34% 🟡)
            ▲ Tu jesteśmy
 Miesiąc 3: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont.)
@@ -60,17 +60,18 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
    - [x] History Helper ✅
    - [x] Coordinator ✅
 
-2. **[🟡] Faza 2: Model Termiczny - W TRAKCIE (23%)**
+2. **[🟡] Faza 2: Model Termiczny - W TRAKCIE (34%)**
    - [x] Model 1R1C (thermal_model.py) ✅
    - [x] RLS algorytm (parameter_estimator.py) ✅
    - [x] Preprocessing danych (data_preprocessing.py) ✅
    - [x] Batch training (model_trainer.py) ✅
    - [x] Walidacja modelu (model_validator.py) ✅
    - [x] Cross-validation (K-fold) ✅
-   - [ ] Online adaptation (T2.2.4)
-   - [ ] Model drift detection (T2.3.3)
-   - [ ] Persystencja parametrów (T2.5.x)
-   - [ ] Sensory diagnostyczne (T2.6.x)
+   - [x] Persystencja parametrów (model_storage.py) ✅
+   - [x] Sensory diagnostyczne (sensor.py) ✅
+   - [ ] Online adaptation (T2.2.4) - opcjonalne
+   - [ ] Model drift detection (T2.3.3) - opcjonalne
+   - [ ] Dokumentacja (T2.7.3)
 
 3. **[ ] Opcjonalnie: Testy w rzeczywistym HA**
    - Zainstaluj integrację w testowym HA
@@ -96,11 +97,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Metryka | Aktualna | Cel v1.0 |
 |---------|----------|----------|
-| Lines of Code | ~4,850 | ~3000-5000 |
+| Lines of Code | ~5,330 | ~3000-5000 |
 | Test Coverage | ~15% (25 tests) | 80%+ |
-| Modules | 12 | ~15 |
-| Functions | ~90 | ~100+ |
-| Classes | 8 | ~12 |
+| Modules | 13 | ~15 |
+| Functions | ~95 | ~100+ |
+| Classes | 13 | ~15 |
 
 ### Dokumentacja
 
@@ -141,10 +142,10 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 - [x] Model 1R1C zaimplementowany ✅
 - [x] RLS algorytm estymacji parametrów ✅
 - [x] Walidacja modelu (metryki: RMSE, MAE, R²) ✅
-- [ ] Persystencja parametrów
-- [ ] Sensory diagnostyczne
+- [x] Persystencja parametrów ✅
+- [x] Sensory diagnostyczne ✅
 
-**Status:** 🟡 W trakcie (23% ukończone)
+**Status:** 🟢 Niemal ukończony (34%, kluczowe funkcje gotowe)
 
 ---
 
@@ -249,6 +250,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-27 | Zaimplementowano PI Controller, History Helper, Coordinator | Faza 1 (83%) |
 | 2025-10-27 | Rozpoczęcie Fazy 2 - Model Termiczny | Faza 2 |
 | 2025-10-27 | Model 1R1C, RLS, preprocessing, validation zaimplementowane | Faza 2 (23%) |
+| 2025-10-27 | Persystencja parametrów i sensory diagnostyczne gotowe | Faza 2 (34%) |
 
 ---
 
