@@ -70,16 +70,16 @@
     - [x] Forgetting factor λ = 0.98 (daje więcej wagi świeżym danom)
     - [x] Inicjalizacja z wartościami domyślnymi (R=0.002, C=4.5e6)
 
-- [ ] **T2.2.2:** Implementuj preprocessing danych treningowych
+- [x] **T2.2.2:** Implementuj preprocessing danych treningowych
   - **Priorytet:** Wysoki
   - **Czas:** 3h
   - **Zależności:** T2.2.1
   - **Kryteria akceptacji:**
-    - [ ] Usuwanie outliers (temperatura poza [0, 50]°C)
-    - [ ] Interpolacja brakujących danych (liniowa, max gap 30 min)
-    - [ ] Resampling do stałego kroku czasowego (10 min)
-    - [ ] Filtracja szumów (moving average window=3)
-    - [ ] Normalizacja (opcjonalnie, dla stabilności numerycznej)
+    - [x] Usuwanie outliers (temperatura poza [0, 50]°C)
+    - [x] Interpolacja brakujących danych (liniowa, max gap 30 min)
+    - [x] Resampling do stałego kroku czasowego (10 min)
+    - [x] Filtracja szumów (moving average window=3)
+    - [x] Normalizacja (opcjonalnie, dla stabilności numerycznej)
 
 - [ ] **T2.2.3:** Implementuj batch training z danych historycznych
   - **Priorytet:** Wysoki
