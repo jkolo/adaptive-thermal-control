@@ -81,16 +81,16 @@
     - [x] Filtracja szumów (moving average window=3)
     - [x] Normalizacja (opcjonalnie, dla stabilności numerycznej)
 
-- [ ] **T2.2.3:** Implementuj batch training z danych historycznych
+- [x] **T2.2.3:** Implementuj batch training z danych historycznych
   - **Priorytet:** Wysoki
   - **Czas:** 4h
   - **Zależności:** T2.2.2
   - **Kryteria akceptacji:**
-    - [ ] Funkcja `train_from_history(room_id, days=30)`
-    - [ ] Pobiera dane z HA recorder (temperatura, grzanie, temp zewn)
-    - [ ] Uruchamia RLS na całym zbiorze danych
-    - [ ] Zwraca estymowane parametry (R, C, τ)
-    - [ ] Oblicza metryki błędu (RMSE, MAE)
+    - [x] Funkcja `train_from_history(room_id, days=30)`
+    - [x] Pobiera dane z HA recorder (temperatura, grzanie, temp zewn)
+    - [x] Uruchamia RLS na całym zbiorze danych
+    - [x] Zwraca estymowane parametry (R, C, τ)
+    - [x] Oblicza metryki błędu (RMSE, MAE)
 
 - [ ] **T2.2.4:** Online adaptation - dostrajanie modelu w trakcie działania
   - **Priorytet:** Średni
