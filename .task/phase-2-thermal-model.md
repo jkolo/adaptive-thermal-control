@@ -107,29 +107,29 @@
 
 ### 2.3 Walidacja modelu
 
-- [ ] **T2.3.1:** Implementuj `model_validator.py` - klasa ModelValidator
+- [x] **T2.3.1:** Implementuj `model_validator.py` - klasa ModelValidator
   - **Priorytet:** Wysoki
   - **Czas:** 3h
   - **Zależności:** T2.2.3
   - **Kryteria akceptacji:**
-    - [ ] Metoda `validate(model, test_data) -> metrics`
-    - [ ] Porównanie predykcji vs rzeczywistość
-    - [ ] Metryki:
+    - [x] Metoda `validate(model, test_data) -> metrics`
+    - [x] Porównanie predykcji vs rzeczywistość
+    - [x] Metryki:
       - MAE (Mean Absolute Error)
       - RMSE (Root Mean Square Error)
       - R² score
       - Max error
-    - [ ] Wizualizacja (opcjonalnie, do debugowania)
+    - [x] Wizualizacja (opcjonalnie, do debugowania)
 
-- [ ] **T2.3.2:** K-fold cross-validation
+- [x] **T2.3.2:** K-fold cross-validation
   - **Priorytet:** Średni
   - **Czas:** 2h
   - **Zależności:** T2.3.1
   - **Kryteria akceptacji:**
-    - [ ] Podział danych na K foldów (np. K=5)
-    - [ ] Trenowanie na K-1 foldach, test na 1
-    - [ ] Średnia metryk z wszystkich foldów
-    - [ ] Sprawdzenie stabilności parametrów (variance między foldami)
+    - [x] Podział danych na K foldów (np. K=5)
+    - [x] Trenowanie na K-1 foldach, test na 1
+    - [x] Średnia metryk z wszystkich foldów
+    - [x] Sprawdzenie stabilności parametrów (variance między foldami)
 
 - [ ] **T2.3.3:** Wykrywanie drift modelu (model degradation)
   - **Priorytet:** Niski
