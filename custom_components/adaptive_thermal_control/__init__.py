@@ -16,7 +16,7 @@ from .coordinator import AdaptiveThermalCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 # Supported platforms
-PLATFORMS_LIST: list[Platform] = [Platform.CLIMATE]
+PLATFORMS_LIST: list[Platform] = [Platform.CLIMATE, Platform.SENSOR]
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:

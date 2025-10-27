@@ -36,12 +36,12 @@
 
 ## Documentation
 
-For detailed installation and configuration instructions, see the [full README](https://github.com/YOUR_USERNAME/adaptive-thermal-control#readme).
+For detailed installation and configuration instructions, see the [full README](https://gitlab.com/YOUR_USERNAME/adaptive-thermal-control#readme).
 
 ## Support
 
-- [GitHub Issues](https://github.com/YOUR_USERNAME/adaptive-thermal-control/issues)
-- [Documentation](https://github.com/YOUR_USERNAME/adaptive-thermal-control/tree/main/docs)
+- [GitLab Issues](https://gitlab.com/YOUR_USERNAME/adaptive-thermal-control/-/issues)
+- [Documentation](https://gitlab.com/YOUR_USERNAME/adaptive-thermal-control/-/tree/main/docs)
 
 ---
 

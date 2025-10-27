@@ -1,0 +1,47 @@
+# GitLab CI/CD Pipeline for HACS Integration Validation
+
+stages:
+  - validate
+
+variables:
+  # Use latest Python image
+  PYTHON_VERSION: "3.13"
+
+# Validate with HACS Action
+validate-hacs:
+  stage: validate
+  image: python:${PYTHON_VERSION}-slim
+  script:
+    # Install git (required by HACS validator)
+    - apt-get update && apt-get install -y git curl
+
+    # Clone HACS action repository
+    - git clone https://github.com/hacs/action.git /tmp/hacs-action
+
+    # Run HACS validation
+    - cd /tmp/hacs-action
+    - pip install -r requirements.txt
+    - python -m hacs_action.validate --category integration --repository ${CI_PROJECT_DIR}
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+
+# Validate with Home Assistant hassfest
+validate-hassfest:
+  stage: validate
+  image: homeassistant/home-assistant:latest
+  script:
+    # Run hassfest validation
+    - python -m script.hassfest --integration-path ${CI_PROJECT_DIR}/custom_components/adaptive_thermal_control
+  allow_failure: false
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+
+# Optional: Run on schedule (daily)
+# Configure in GitLab: CI/CD > Schedules
+# Add a schedule with cron pattern: 0 0 * * *

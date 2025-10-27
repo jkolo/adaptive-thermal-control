@@ -226,29 +226,29 @@
 
 ### 2.6 Sensor diagnostyczny
 
-- [ ] **T2.6.1:** Stwórz `sensor.py` - sensory diagnostyczne
+- [x] **T2.6.1:** Stwórz `sensor.py` - sensory diagnostyczne
   - **Priorytet:** Średni
   - **Czas:** 3h
   - **Zależności:** T2.3.1
   - **Kryteria akceptacji:**
-    - [ ] Sensor: `sensor.adaptive_thermal_[pokój]_model_r` (opór termiczny)
-    - [ ] Sensor: `sensor.adaptive_thermal_[pokój]_model_c` (pojemność)
-    - [ ] Sensor: `sensor.adaptive_thermal_[pokój]_model_tau` (stała czasowa)
-    - [ ] Sensor: `sensor.adaptive_thermal_[pokój]_prediction_error` (RMSE)
-    - [ ] Unit of measurement: R [K/W], C [MJ/K], τ [h], error [°C]
+    - [x] Sensor: `sensor.adaptive_thermal_[pokój]_model_r` (opór termiczny)
+    - [x] Sensor: `sensor.adaptive_thermal_[pokój]_model_c` (pojemność)
+    - [x] Sensor: `sensor.adaptive_thermal_[pokój]_model_tau` (stała czasowa)
+    - [x] Sensor: `sensor.adaptive_thermal_[pokój]_prediction_error` (RMSE)
+    - [x] Unit of measurement: R [K/W], C [MJ/K], τ [h], error [°C]
 
-- [ ] **T2.6.2:** Sensor statusu modelu
+- [x] **T2.6.2:** Sensor statusu modelu
   - **Priorytet:** Średni
   - **Czas:** 1h
   - **Zależności:** T2.6.1
   - **Kryteria akceptacji:**
-    - [ ] Sensor: `sensor.adaptive_thermal_[pokój]_model_status`
-    - [ ] Stany:
+    - [x] Sensor: `sensor.adaptive_thermal_[pokój]_model_status`
+    - [x] Stany:
       - "not_trained" - brak danych, używa defaults
       - "learning" - < 30 dni danych
       - "trained" - > 30 dni, dobry model
       - "degraded" - wykryto drift
-    - [ ] Atrybuty: training_data_days, last_training, rmse
+    - [x] Atrybuty: training_data_days, last_training, rmse
 
 ---
 
