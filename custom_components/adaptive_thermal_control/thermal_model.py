@@ -11,14 +11,14 @@ Physical Interpretation:
   Represents thermal mass of room (air, furniture, walls)
 
 Model Equation (Continuous):
-    C·dT/dt = Q_heating - (T - T_outdoor)/R + Q_disturbances
+    CÂ·dT/dt = Q_heating - (T - T_outdoor)/R + Q_disturbances
 
 Discretized (Euler):
-    T(k+1) = A·T(k) + B·u(k) + Bd·d(k)
+    T(k+1) = AÂ·T(k) + BÂ·u(k) + BdÂ·d(k)
 
 Where:
-    A = exp(-dt/(R·C))          # State transition matrix
-    B = R·(1 - A)                # Input gain matrix
+    A = exp(-dt/(RÂ·C))          # State transition matrix
+    B = RÂ·(1 - A)                # Input gain matrix
     Bd = (1 - A)                 # Disturbance gain matrix
     u(k) = heating power [W]
     d(k) = [T_outdoor, ...]      # Disturbances
@@ -45,7 +45,7 @@ class ThermalModelParameters:
     Attributes:
         R: Thermal resistance [K/W]
         C: Thermal capacity [J/K]
-        time_constant: Time constant Ä = R·C [seconds]
+        time_constant: Time constant Ã„ = RÂ·C [seconds]
     """
 
     R: float = THERMAL_MODEL_R_DEFAULT  # [K/W]
@@ -53,7 +53,7 @@ class ThermalModelParameters:
 
     @property
     def time_constant(self) -> float:
-        """Calculate time constant Ä = R·C.
+        """Calculate time constant Ã„ = RÂ·C.
 
         Returns:
             Time constant in seconds
@@ -78,7 +78,7 @@ class ThermalModelParameters:
         tau = self.time_constant
         if tau < 3600 or tau > 43200:
             _LOGGER.warning(
-                "Time constant Ä=%.1fh outside typical range [1h, 12h]",
+                "Time constant Ã„=%.1fh outside typical range [1h, 12h]",
                 tau / 3600,
             )
 
@@ -103,7 +103,7 @@ class ThermalModel:
     This model captures the essential heat transfer physics:
     - Heat input from heating system (Q_heating)
     - Heat loss to outdoor (T - T_outdoor)/R
-    - Heat storage in thermal mass C·dT/dt
+    - Heat storage in thermal mass CÂ·dT/dt
 
     The model is discretized using Euler method for real-time simulation.
     """
@@ -130,7 +130,7 @@ class ThermalModel:
         self._update_matrices()
 
         _LOGGER.info(
-            "Initialized ThermalModel: R=%.6f K/W, C=%.0f J/K, Ä=%.1f hours, dt=%.0fs",
+            "Initialized ThermalModel: R=%.6f K/W, C=%.0f J/K, Ã„=%.1f hours, dt=%.0fs",
             self.params.R,
             self.params.C,
             self.params.time_constant / 3600,
@@ -146,10 +146,10 @@ class ThermalModel:
         C = self.params.C
         dt = self.dt
 
-        # State transition: A = exp(-dt/(R·C))
+        # State transition: A = exp(-dt/(RÂ·C))
         self.A = np.exp(-dt / (R * C))
 
-        # Input gain: B = R·(1 - A)
+        # Input gain: B = RÂ·(1 - A)
         self.B = R * (1 - self.A)
 
         # Disturbance gain: Bd = (1 - A)
@@ -175,7 +175,7 @@ class ThermalModel:
         self._update_matrices()
 
         _LOGGER.info(
-            "Updated model parameters: R=%.6f K/W, C=%.0f J/K, Ä=%.1f hours",
+            "Updated model parameters: R=%.6f K/W, C=%.0f J/K, Ã„=%.1f hours",
             self.params.R,
             self.params.C,
             self.params.time_constant / 3600,
@@ -191,15 +191,15 @@ class ThermalModel:
         """Simulate one time step of the thermal model.
 
         Args:
-            T_current: Current room temperature [°C]
+            T_current: Current room temperature [Â°C]
             u_heating: Heating power [W]
-            T_outdoor: Outdoor temperature [°C]
+            T_outdoor: Outdoor temperature [Â°C]
             Q_disturbances: Additional disturbances [W] (e.g., solar, neighbors)
 
         Returns:
-            Next room temperature T(k+1) [°C]
+            Next room temperature T(k+1) [Â°C]
         """
-        # State equation: T(k+1) = A·T(k) + B·u(k) + Bd·d(k)
+        # State equation: T(k+1) = AÂ·T(k) + BÂ·u(k) + BdÂ·d(k)
         # Where d(k) combines outdoor temp and other disturbances
 
         # Temperature dynamics
@@ -221,13 +221,13 @@ class ThermalModel:
         """Predict temperature trajectory over multiple time steps.
 
         Args:
-            T_initial: Initial room temperature [°C]
+            T_initial: Initial room temperature [Â°C]
             u_sequence: Heating power sequence [W] (length N)
-            T_outdoor_sequence: Outdoor temperature sequence [°C] (length N)
+            T_outdoor_sequence: Outdoor temperature sequence [Â°C] (length N)
             Q_disturbances_sequence: Disturbance power sequence [W] (length N, optional)
 
         Returns:
-            Temperature predictions [°C] (length N+1, includes initial)
+            Temperature predictions [Â°C] (length N+1, includes initial)
         """
         N = len(u_sequence)
 
@@ -260,7 +260,7 @@ class ThermalModel:
             )
 
         _LOGGER.debug(
-            "Predicted %d steps: T_initial=%.1f°C ’ T_final=%.1f°C",
+            "Predicted %d steps: T_initial=%.1fÂ°C Â’ T_final=%.1fÂ°C",
             N,
             T_initial,
             T_pred[-1],
@@ -277,20 +277,20 @@ class ThermalModel:
         """Calculate steady-state temperature for constant inputs.
 
         At steady state: dT/dt = 0, so:
-            T_ss = T_outdoor + R·(u_heating + Q_disturbances)
+            T_ss = T_outdoor + RÂ·(u_heating + Q_disturbances)
 
         Args:
             u_heating: Constant heating power [W]
-            T_outdoor: Constant outdoor temperature [°C]
+            T_outdoor: Constant outdoor temperature [Â°C]
             Q_disturbances: Constant disturbance power [W]
 
         Returns:
-            Steady-state room temperature [°C]
+            Steady-state room temperature [Â°C]
         """
         T_ss = T_outdoor + self.params.R * (u_heating + Q_disturbances)
 
         _LOGGER.debug(
-            "Steady state: u=%.1fW, T_out=%.1f°C ’ T_ss=%.1f°C",
+            "Steady state: u=%.1fW, T_out=%.1fÂ°C Â’ T_ss=%.1fÂ°C",
             u_heating,
             T_outdoor,
             T_ss,
@@ -310,8 +310,8 @@ class ThermalModel:
             u_heating = (T_target - T_outdoor)/R - Q_disturbances
 
         Args:
-            T_target: Target room temperature [°C]
-            T_outdoor: Outdoor temperature [°C]
+            T_target: Target room temperature [Â°C]
+            T_outdoor: Outdoor temperature [Â°C]
             Q_disturbances: Disturbance power [W] (positive = heating)
 
         Returns:
@@ -320,7 +320,7 @@ class ThermalModel:
         u_heating = (T_target - T_outdoor) / self.params.R - Q_disturbances
 
         _LOGGER.debug(
-            "Required heating: T_target=%.1f°C, T_out=%.1f°C ’ u=%.1fW",
+            "Required heating: T_target=%.1fÂ°C, T_out=%.1fÂ°C Â’ u=%.1fW",
             T_target,
             T_outdoor,
             u_heating,
@@ -353,6 +353,6 @@ class ThermalModel:
         return (
             f"ThermalModel(R={self.params.R:.6f} K/W, "
             f"C={self.params.C:.0f} J/K, "
-            f"Ä={self.params.time_constant/3600:.1f}h, "
+            f"Ã„={self.params.time_constant/3600:.1f}h, "
             f"dt={self.dt:.0f}s)"
         )

@@ -203,7 +203,7 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             try:
                 self._attr_current_temperature = float(temp_state.state)
                 _LOGGER.debug(
-                    "Updated temperature for %s: %.1f�C",
+                    "Updated temperature for %s: %.1f°C",
                     self._attr_name,
                     self._attr_current_temperature,
                 )
@@ -238,7 +238,7 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             return
 
         _LOGGER.info(
-            "Setting target temperature for %s to %.1f�C",
+            "Setting target temperature for %s to %.1f°C",
             self._attr_name,
             temperature,
         )

@@ -45,15 +45,15 @@
     - [x] Opcjonalnie: nasłonecznienie (Q_solar)
     - [x] Wektor zakłóceń: `d = [T_zewn, T_neighbors, solar_gain]` (Q_disturbances parameter)
 
-- [ ] **T2.1.3:** Testy modelu termicznego
+- [x] **T2.1.3:** Testy modelu termicznego
   - **Priorytet:** Średni
   - **Czas:** 2h
   - **Zależności:** T2.1.2
   - **Kryteria akceptacji:**
-    - [ ] Test: stała temp zewn, stałe grzanie → osiąga stan ustalony
-    - [ ] Test: skok mocy grzania → eksponencjalna odpowiedź
-    - [ ] Test: stała czasowa τ = R·C zgodna z teorią
-    - [ ] Test: symulacja 24h bez błędów numerycznych
+    - [x] Test: stała temp zewn, stałe grzanie → osiąga stan ustalony
+    - [x] Test: skok mocy grzania → eksponencjalna odpowiedź
+    - [x] Test: stała czasowa τ = R·C zgodna z teorią
+    - [x] Test: symulacja 24h bez błędów numerycznych
 
 ---
 

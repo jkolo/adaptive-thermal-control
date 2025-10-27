@@ -198,7 +198,7 @@ class AdaptiveThermalControlConfigFlow(config_entries.ConfigFlow, domain=DOMAIN)
                         min=1.0,
                         max=500.0,
                         step=0.1,
-                        unit_of_measurement="m²",
+                        unit_of_measurement="mÂ²",
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
@@ -209,7 +209,7 @@ class AdaptiveThermalControlConfigFlow(config_entries.ConfigFlow, domain=DOMAIN)
                         min=5.0,
                         max=25.0,
                         step=0.5,
-                        unit_of_measurement="°C",
+                        unit_of_measurement="Â°C",
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
@@ -220,7 +220,7 @@ class AdaptiveThermalControlConfigFlow(config_entries.ConfigFlow, domain=DOMAIN)
                         min=15.0,
                         max=35.0,
                         step=0.5,
-                        unit_of_measurement="°C",
+                        unit_of_measurement="Â°C",
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),

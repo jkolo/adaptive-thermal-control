@@ -142,7 +142,7 @@ class AdaptiveThermalCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 try:
                     sensor_data["outdoor_temperature"] = float(outdoor_state.state)
                     _LOGGER.debug(
-                        "Outdoor temperature: %.1f°C",
+                        "Outdoor temperature: %.1fÂ°C",
                         sensor_data["outdoor_temperature"],
                     )
                 except (ValueError, TypeError):

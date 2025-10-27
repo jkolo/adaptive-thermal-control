@@ -38,9 +38,9 @@ DEFAULT_DT: Final = 600.0  # Control update interval [seconds] (10 minutes)
 DEFAULT_ANTI_WINDUP_LIMIT: Final = 100.0  # Anti-windup limit [%]
 
 # Default values - Thermostat
-DEFAULT_MIN_TEMP: Final = 15.0  # Minimum temperature [°C]
-DEFAULT_MAX_TEMP: Final = 28.0  # Maximum temperature [°C]
-DEFAULT_TARGET_TEMP: Final = 21.0  # Default target temperature [°C]
+DEFAULT_MIN_TEMP: Final = 15.0  # Minimum temperature [Â°C]
+DEFAULT_MAX_TEMP: Final = 28.0  # Maximum temperature [Â°C]
+DEFAULT_TARGET_TEMP: Final = 21.0  # Default target temperature [Â°C]
 DEFAULT_VALVE_OPEN_TIME: Final = 45.0  # Default valve opening time [seconds]
 DEFAULT_VALVE_CLOSE_TIME: Final = 45.0  # Default valve closing time [seconds]
 
