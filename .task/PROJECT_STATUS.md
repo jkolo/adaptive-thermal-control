@@ -8,11 +8,11 @@
 
 | Metryka | Wartość |
 |---------|---------|
-| **Faza projektu** | 🟡 Faza 2 - Model termiczny (34% ukończone) |
-| **Postęp ogólny** | 26% (Faza 1 ukończona, Faza 2 w trakcie) |
+| **Faza projektu** | 🟡 Faza 2 - Model termiczny (37% ukończone) |
+| **Postęp ogólny** | 27% (Faza 1 ukończona, Faza 2 w trakcie) |
 | **Czas do v1.0** | ~4.5 miesięcy (1.5 miesiąca postępu) |
-| **Otwarte zadania** | ~167 (wszystkie fazy) |
-| **Ukończone zadania** | 30/197 (15%) |
+| **Otwarte zadania** | ~164 (wszystkie fazy) |
+| **Ukończone zadania** | 33/197 (17%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -22,13 +22,13 @@
 | Faza | Status | Postęp | Czas | Priorytet |
 |------|--------|--------|------|-----------|
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
-| [Faza 2: Model termiczny](./phase-2-thermal-model.md) | 🟡 W trakcie | 34% (12/35 zadań) | 2.5 tyg pozostało | **WYSOKI** |
+| [Faza 2: Model termiczny](./phase-2-thermal-model.md) | 🟡 W trakcie | 37% (13/35 zadań) | 2 tyg pozostało | **WYSOKI** |
 | [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🔴 Nie rozpoczęte | 0% (0/38 zadań) | 6-8 tyg | Wysoki |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (30 ukończonych, 167 pozostałych)
+**Łącznie:** 197 zadań (33 ukończone, 164 pozostałe)
 
 ---
 
@@ -36,7 +36,7 @@
 
 ```
 Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
-Miesiąc 2: [█████████░░░░░░░░░░░░░░░░░░░] Faza 2 (34% 🟡)
+Miesiąc 2: [███████████░░░░░░░░░░░░░░░░░] Faza 2 (37% 🟡)
            ▲ Tu jesteśmy
 Miesiąc 3: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont.)
@@ -60,7 +60,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
    - [x] History Helper ✅
    - [x] Coordinator ✅
 
-2. **[🟡] Faza 2: Model Termiczny - W TRAKCIE (34%)**
+2. **[🟡] Faza 2: Model Termiczny - W TRAKCIE (37%)**
    - [x] Model 1R1C (thermal_model.py) ✅
    - [x] RLS algorytm (parameter_estimator.py) ✅
    - [x] Preprocessing danych (data_preprocessing.py) ✅
@@ -69,9 +69,10 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
    - [x] Cross-validation (K-fold) ✅
    - [x] Persystencja parametrów (model_storage.py) ✅
    - [x] Sensory diagnostyczne (sensor.py) ✅
+   - [x] Unit tests (55 tests, all passing) ✅
+   - [x] Dokumentacja (T2.7.3) ✅
    - [ ] Online adaptation (T2.2.4) - opcjonalne
    - [ ] Model drift detection (T2.3.3) - opcjonalne
-   - [ ] Dokumentacja (T2.7.3)
 
 3. **[ ] Opcjonalnie: Testy w rzeczywistym HA**
    - Zainstaluj integrację w testowym HA
@@ -97,17 +98,17 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Metryka | Aktualna | Cel v1.0 |
 |---------|----------|----------|
-| Lines of Code | ~5,330 | ~3000-5000 |
-| Test Coverage | ~15% (25 tests) | 80%+ |
+| Lines of Code | ~6,800 | ~3000-5000 |
+| Test Coverage | ~55% (55 tests) | 80%+ |
 | Modules | 13 | ~15 |
-| Functions | ~95 | ~100+ |
+| Functions | ~100+ | ~100+ |
 | Classes | 13 | ~15 |
 
 ### Dokumentacja
 
 | Dokument | Status |
 |----------|--------|
-| README.md | 🔴 Brak (do stworzenia w Fazie 6) |
+| README.md | 🟢 Gotowy (comprehensive thermal model docs) |
 | MPC_THEORY_AND_PRACTICE.md | ✅ Gotowy |
 | PROJECT.md | ✅ Gotowy |
 | REQUIREMENTS.md | ✅ Gotowy |
@@ -118,7 +119,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Typ testu | Zaimplementowane | Przechodzące |
 |-----------|------------------|--------------|
-| Unit tests | 0 | 0 |
+| Unit tests | 55 | 55 |
 | Integration tests | 0 | 0 |
 | End-to-end tests | 0 | 0 |
 

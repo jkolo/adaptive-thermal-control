@@ -254,15 +254,15 @@
 
 ### 2.7 Dokumentacja i testy
 
-- [ ] **T2.7.1:** Testy jednostkowe modelu termicznego
+- [x] **T2.7.1:** Testy jednostkowe modelu termicznego
   - **Priorytet:** Wysoki
   - **Czas:** 3h
   - **Zależności:** T2.1.3
   - **Kryteria akceptacji:**
-    - [ ] Test ThermalModel.predict()
-    - [ ] Test ParameterEstimator.update()
-    - [ ] Test ModelValidator.validate()
-    - [ ] Coverage > 80% dla nowych modułów
+    - [x] Test ThermalModel.predict() - 25 tests
+    - [x] Test ParameterEstimator.update() - 16 tests
+    - [x] Test ModelValidator.validate() - 14 tests
+    - [x] Coverage > 80% dla nowych modułów - 55 tests total, all passing
 
 - [ ] **T2.7.2:** Test integracyjny - uczenie z danych rzeczywistych
   - **Priorytet:** Wysoki
