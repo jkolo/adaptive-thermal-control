@@ -8,11 +8,11 @@
 
 | Metryka | Wartość |
 |---------|---------|
-| **Faza projektu** | 🟡 Faza 1 - Fundament (83% ukończone) |
-| **Postęp ogólny** | 17% (Faza 1 w dużej mierze gotowa) |
-| **Czas do v1.0** | ~5 miesięcy (1 miesiąc postępu) |
-| **Otwarte zadania** | ~177 (wszystkie fazy) |
-| **Ukończone zadania** | 20/197 (10%) |
+| **Faza projektu** | 🟡 Faza 2 - Model termiczny (23% ukończone) |
+| **Postęp ogólny** | 24% (Faza 1 ukończona, Faza 2 w trakcie) |
+| **Czas do v1.0** | ~4.7 miesięcy (1.3 miesiąca postępu) |
+| **Otwarte zadania** | ~169 (wszystkie fazy) |
+| **Ukończone zadania** | 28/197 (14%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -21,30 +21,30 @@
 
 | Faza | Status | Postęp | Czas | Priorytet |
 |------|--------|--------|------|-----------|
-| [Faza 1: Fundament](./phase-1-foundation.md) | 🟡 W trakcie | 83% (20/24 zadań) | 1 tyg pozostało | **WYSOKI** |
-| [Faza 2: Model termiczny](./phase-2-thermal-model.md) | 🔴 Nie rozpoczęte | 0% (0/35 zadań) | 4 tyg | Wysoki |
+| [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
+| [Faza 2: Model termiczny](./phase-2-thermal-model.md) | 🟡 W trakcie | 23% (8/35 zadań) | 3 tyg pozostało | **WYSOKI** |
 | [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🔴 Nie rozpoczęte | 0% (0/38 zadań) | 6-8 tyg | Wysoki |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (20 ukończonych, 177 pozostałych)
+**Łącznie:** 197 zadań (28 ukończonych, 169 pozostałych)
 
 ---
 
 ## 📅 Timeline
 
 ```
-Miesiąc 1: [████████████████████████░░░░] Faza 1 (83% ✅)
+Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
+Miesiąc 2: [██████░░░░░░░░░░░░░░░░░░░░░░] Faza 2 (23% 🟡)
            ▲ Tu jesteśmy
-Miesiąc 2: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 2
 Miesiąc 3: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont.)
 Miesiąc 5: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 4
 Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 5 + 6
 ```
 
-**Szacowany czas do pierwszej wersji (v1.0):** ~5 miesięcy (1 miesiąc postępu)
+**Szacowany czas do pierwszej wersji (v1.0):** ~4.7 miesięcy (1.3 miesiąca postępu)
 
 ---
 
@@ -52,25 +52,30 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 ### Do zrobienia w tym tygodniu:
 
-1. **[🟡] Zakończ Fazę 1: Fundament**
+1. **[✅] Faza 1: Fundament - UKOŃCZONA**
    - [x] Struktura custom component ✅
    - [x] Config Flow ✅
    - [x] Climate entities ✅
    - [x] PI Controller ✅
    - [x] History Helper ✅
    - [x] Coordinator ✅
-   - [ ] Testy jednostkowe (T1.8.1)
-   - [ ] Podstawowa dokumentacja (T1.8.3)
 
-2. **[ ] Rozpocznij Fazę 2: Model Termiczny**
-   - Implementacja modelu 1R1C
-   - RLS algorytm identyfikacji
-   - Walidacja modelu
+2. **[🟡] Faza 2: Model Termiczny - W TRAKCIE (23%)**
+   - [x] Model 1R1C (thermal_model.py) ✅
+   - [x] RLS algorytm (parameter_estimator.py) ✅
+   - [x] Preprocessing danych (data_preprocessing.py) ✅
+   - [x] Batch training (model_trainer.py) ✅
+   - [x] Walidacja modelu (model_validator.py) ✅
+   - [x] Cross-validation (K-fold) ✅
+   - [ ] Online adaptation (T2.2.4)
+   - [ ] Model drift detection (T2.3.3)
+   - [ ] Persystencja parametrów (T2.5.x)
+   - [ ] Sensory diagnostyczne (T2.6.x)
 
 3. **[ ] Opcjonalnie: Testy w rzeczywistym HA**
    - Zainstaluj integrację w testowym HA
-   - Przetestuj Config Flow
-   - Sprawdź działanie PI controllera
+   - Przetestuj trenowanie modelu z rzeczywistych danych
+   - Sprawdź działanie parametr identification
 
 ### Quick wins (łatwe zadania na początek):
 
@@ -91,11 +96,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Metryka | Aktualna | Cel v1.0 |
 |---------|----------|----------|
-| Lines of Code | ~1,924 | ~3000-5000 |
-| Test Coverage | 0% | 80%+ |
-| Modules | 7 | ~15 |
-| Functions | ~50 | ~100+ |
-| Classes | 5 | ~12 |
+| Lines of Code | ~4,850 | ~3000-5000 |
+| Test Coverage | ~15% (25 tests) | 80%+ |
+| Modules | 12 | ~15 |
+| Functions | ~90 | ~100+ |
+| Classes | 8 | ~12 |
 
 ### Dokumentacja
 
@@ -133,12 +138,13 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 ---
 
 ### Milestone 2: Model termiczny (M2) - Koniec miesiąca 2
-- [ ] Model 1R1C zaimplementowany
-- [ ] RLS algorytm estymacji parametrów
-- [ ] Walidacja modelu (RMSE < 1°C)
+- [x] Model 1R1C zaimplementowany ✅
+- [x] RLS algorytm estymacji parametrów ✅
+- [x] Walidacja modelu (metryki: RMSE, MAE, R²) ✅
 - [ ] Persystencja parametrów
+- [ ] Sensory diagnostyczne
 
-**Status:** 🔴 Nie rozpoczęty
+**Status:** 🟡 W trakcie (23% ukończone)
 
 ---
 
@@ -241,7 +247,8 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-26 | Projekt zainicjowany, planowanie zakończone | Faza 0 |
 | 2025-10-27 | Rozpoczęcie Fazy 1 - struktura i podstawowe komponenty | Faza 1 |
 | 2025-10-27 | Zaimplementowano PI Controller, History Helper, Coordinator | Faza 1 (83%) |
-| TBD | Zakończenie Fazy 1, rozpoczęcie Fazy 2 | Faza 2 |
+| 2025-10-27 | Rozpoczęcie Fazy 2 - Model Termiczny | Faza 2 |
+| 2025-10-27 | Model 1R1C, RLS, preprocessing, validation zaimplementowane | Faza 2 (23%) |
 
 ---
 
