@@ -1,6 +1,6 @@
 # Faza 2: Model termiczny (Miesiąc 2)
 
-**Status:** 🔴 Nie rozpoczęte
+**Status:** 🟡 W trakcie
 
 **Cel:** Uczenie się parametrów modelu termicznego z danych historycznych
 
@@ -24,26 +24,26 @@
 
 ### 2.1 Model termiczny 1R1C
 
-- [ ] **T2.1.1:** Implementuj `thermal_model.py` - klasa ThermalModel
+- [x] **T2.1.1:** Implementuj `thermal_model.py` - klasa ThermalModel
   - **Priorytet:** Wysoki
   - **Czas:** 4h
   - **Zależności:** Brak
   - **Kryteria akceptacji:**
-    - [ ] Równanie: `C·dT/dt = Q_grzanie - (T - T_zewn)/R + Q_zakłócenia`
-    - [ ] Dyskretyzacja Eulera: `T(k+1) = A·T(k) + B·u(k) + Bd·d(k)`
-    - [ ] Macierze: `A = exp(-dt/(R·C))`, `B = R·(1-A)`, `Bd = (1-A)`
-    - [ ] Metoda `predict(x0, u_sequence, d_forecast) -> x_pred`
-    - [ ] Metoda `simulate_step(T, u, T_zewn, dt) -> T_next`
+    - [x] Równanie: `C·dT/dt = Q_grzanie - (T - T_zewn)/R + Q_zakłócenia`
+    - [x] Dyskretyzacja Eulera: `T(k+1) = A·T(k) + B·u(k) + Bd·d(k)`
+    - [x] Macierze: `A = exp(-dt/(R·C))`, `B = R·(1-A)`, `Bd = (1-A)`
+    - [x] Metoda `predict(x0, u_sequence, d_forecast) -> x_pred`
+    - [x] Metoda `simulate_step(T, u, T_zewn, dt) -> T_next`
 
-- [ ] **T2.1.2:** Implementuj obsługę zakłóceń (disturbances)
+- [x] **T2.1.2:** Implementuj obsługę zakłóceń (disturbances)
   - **Priorytet:** Wysoki
   - **Czas:** 2h
   - **Zależności:** T2.1.1
   - **Kryteria akceptacji:**
-    - [ ] Temperatura zewnętrzna jako zakłócenie główne
-    - [ ] Opcjonalnie: wpływ sąsiednich pomieszczeń
-    - [ ] Opcjonalnie: nasłonecznienie (Q_solar)
-    - [ ] Wektor zakłóceń: `d = [T_zewn, T_neighbors, solar_gain]`
+    - [x] Temperatura zewnętrzna jako zakłócenie główne
+    - [x] Opcjonalnie: wpływ sąsiednich pomieszczeń
+    - [x] Opcjonalnie: nasłonecznienie (Q_solar)
+    - [x] Wektor zakłóceń: `d = [T_zewn, T_neighbors, solar_gain]` (Q_disturbances parameter)
 
 - [ ] **T2.1.3:** Testy modelu termicznego
   - **Priorytet:** Średni
