@@ -274,15 +274,15 @@
     - [ ] Sprawdź czy parametry są sensowne (R ∈ [0.001, 0.01], C ∈ [1e6, 1e7])
     - [ ] Sprawdź czy RMSE < 1.0°C
 
-- [ ] **T2.7.3:** Dokumentacja modelu termicznego
+- [x] **T2.7.3:** Dokumentacja modelu termicznego
   - **Priorytet:** Średni
   - **Czas:** 2h
   - **Zależności:** T2.7.2
   - **Kryteria akceptacji:**
-    - [ ] README sekcja "How it works - Thermal Model"
-    - [ ] Równania matematyczne z wyjaśnieniem
-    - [ ] Diagram blokowy modelu 1R1C
-    - [ ] Przykładowe wartości parametrów dla różnych typów budynków
+    - [x] README sekcja "How it works - Thermal Model"
+    - [x] Równania matematyczne z wyjaśnieniem
+    - [x] Diagram blokowy modelu 1R1C (tekstowy opis)
+    - [x] Przykładowe wartości parametrów dla różnych typów budynków
 
 ---
 
