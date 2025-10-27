@@ -59,16 +59,16 @@
 
 ### 2.2 Identyfikacja parametrów (RLS)
 
-- [ ] **T2.2.1:** Implementuj `parameter_estimator.py` - klasa ParameterEstimator
+- [x] **T2.2.1:** Implementuj `parameter_estimator.py` - klasa ParameterEstimator
   - **Priorytet:** Wysoki
   - **Czas:** 5h
   - **Zależności:** T2.1.1
   - **Kryteria akceptacji:**
-    - [ ] Algorytm Recursive Least Squares (RLS)
-    - [ ] Estymacja R i C z danych historycznych
-    - [ ] Metoda `update(T_measured, T_outdoor, P_heating, dt)`
-    - [ ] Forgetting factor λ = 0.98 (daje więcej wagi świeżym danom)
-    - [ ] Inicjalizacja z wartościami domyślnymi (R=0.002, C=4.5e6)
+    - [x] Algorytm Recursive Least Squares (RLS)
+    - [x] Estymacja R i C z danych historycznych
+    - [x] Metoda `update(T_measured, T_outdoor, P_heating, dt)`
+    - [x] Forgetting factor λ = 0.98 (daje więcej wagi świeżym danom)
+    - [x] Inicjalizacja z wartościami domyślnymi (R=0.002, C=4.5e6)
 
 - [ ] **T2.2.2:** Implementuj preprocessing danych treningowych
   - **Priorytet:** Wysoki
