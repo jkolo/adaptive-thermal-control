@@ -180,13 +180,13 @@
 
 ### 2.5 Persystencja danych
 
-- [ ] **T2.5.1:** Zapis parametrów modelu do pliku JSON
+- [x] **T2.5.1:** Zapis parametrów modelu do pliku JSON
   - **Priorytet:** Wysoki
   - **Czas:** 2h
   - **Zależności:** T2.2.3
   - **Kryteria akceptacji:**
-    - [ ] Plik: `config/.storage/adaptive_thermal_control_models.json`
-    - [ ] Struktura:
+    - [x] Plik: `config/.storage/adaptive_thermal_control_models.json`
+    - [x] Struktura:
       ```json
       {
         "climate.salon": {
@@ -200,18 +200,18 @@
         }
       }
       ```
-    - [ ] Atomic write (tmp file + rename)
-    - [ ] Backup poprzedniej wersji pliku
+    - [x] Atomic write (tmp file + rename)
+    - [x] Backup poprzedniej wersji pliku
 
-- [ ] **T2.5.2:** Ładowanie parametrów przy starcie integracji
+- [x] **T2.5.2:** Ładowanie parametrów przy starcie integracji
   - **Priorytet:** Wysoki
   - **Czas:** 1h
   - **Zależności:** T2.5.1
   - **Kryteria akceptacji:**
-    - [ ] Przy `async_setup_entry()` → wczytaj parametry z pliku
-    - [ ] Jeśli plik nie istnieje → użyj wartości domyślnych
-    - [ ] Jeśli błąd odczytu → log ERROR, użyj defaults
-    - [ ] Inicjalizuj ThermalModel z wczytanych parametrów
+    - [x] Przy `async_setup_entry()` → wczytaj parametry z pliku
+    - [x] Jeśli plik nie istnieje → użyj wartości domyślnych
+    - [x] Jeśli błąd odczytu → log ERROR, użyj defaults
+    - [x] Inicjalizuj ThermalModel z wczytanych parametrów
 
 - [ ] **T2.5.3:** Historyczne wersje parametrów (opcjonalnie)
   - **Priorytet:** Niski

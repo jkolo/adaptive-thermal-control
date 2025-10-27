@@ -72,6 +72,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Store coordinator in hass.data
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
+    # Load thermal models from storage
+    await coordinator.async_load_models()
+
     # Perform first data refresh
     await coordinator.async_config_entry_first_refresh()
 

@@ -27,6 +27,8 @@ from .const import (
     DOMAIN,
     UPDATE_INTERVAL,
 )
+from .model_storage import ModelStorage
+from .thermal_model import ThermalModel, ThermalModelParameters
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,11 +78,83 @@ class AdaptiveThermalCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.total_power_usage: float = 0.0
         self.zone_demands: dict[str, float] = {}  # zone_id -> heating demand (%)
 
+        # Model storage
+        self.model_storage = ModelStorage(hass)
+        self.thermal_models: dict[str, ThermalModel] = {}  # entity_id -> ThermalModel
+
         _LOGGER.info(
             "Initialized coordinator with %d thermostats (max power: %s kW)",
             len(self.thermostats_config),
             self.max_boiler_power if self.max_boiler_power else "unlimited",
         )
+
+    async def async_load_models(self) -> None:
+        """Load thermal models from storage.
+
+        This should be called after coordinator initialization.
+        Loads stored parameters for each configured thermostat.
+        """
+        # Load storage data
+        await self.model_storage.async_load()
+
+        # Load model for each thermostat
+        for thermostat_config in self.thermostats_config:
+            entity_id = thermostat_config.get("climate_entity")
+            if not entity_id:
+                continue
+
+            # Try to load stored parameters
+            parameters, metrics = await self.model_storage.async_load_model(entity_id)
+
+            if parameters:
+                # Create thermal model with loaded parameters
+                model = ThermalModel(params=parameters, dt=UPDATE_INTERVAL)
+                self.thermal_models[entity_id] = model
+
+                _LOGGER.info(
+                    "Loaded thermal model for %s: R=%.6f, C=%.0f, τ=%.1fh, RMSE=%.3f°C",
+                    entity_id,
+                    parameters.R,
+                    parameters.C,
+                    parameters.time_constant / 3600,
+                    metrics.get("rmse", 0.0) if metrics else 0.0,
+                )
+            else:
+                # Use default parameters
+                _LOGGER.info(
+                    "No stored model for %s, will use defaults or train on first run",
+                    entity_id,
+                )
+
+    async def async_save_model(
+        self,
+        entity_id: str,
+        parameters: ThermalModelParameters,
+        metrics: dict[str, float] | None = None,
+    ) -> None:
+        """Save thermal model parameters.
+
+        Args:
+            entity_id: Entity ID
+            parameters: Model parameters to save
+            metrics: Optional training metrics
+        """
+        await self.model_storage.async_save_model(entity_id, parameters, metrics)
+
+        # Update loaded model
+        model = ThermalModel(params=parameters, dt=UPDATE_INTERVAL)
+        self.thermal_models[entity_id] = model
+
+    def get_thermal_model(self, entity_id: str) -> ThermalModel | None:
+        """Get thermal model for an entity.
+
+        Args:
+            entity_id: Entity ID
+
+        Returns:
+            ThermalModel or None if not available
+        """
+        return self.thermal_models.get(entity_id)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from sensors and compute control outputs.
