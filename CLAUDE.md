@@ -23,6 +23,30 @@ This is an adaptive Home Assistant integration for floor heating control (Sterow
 
 ## Development Commands
 
+### Running Tests
+
+**Use the test runner script** (recommended):
+```bash
+./run_tests.sh                    # Run all tests
+./run_tests.sh -v                 # Verbose output
+./run_tests.sh tests/test_mpc*    # Run specific test file(s)
+./run_tests.sh -k test_name       # Run tests matching pattern
+./run_tests.sh --cov              # Run with coverage report
+```
+
+The script automatically:
+- Activates virtual environment
+- Sets PYTHONPATH correctly
+- Runs pytest with any arguments you provide
+- Deactivates environment after
+
+**Manual testing** (if needed):
+```bash
+source .venv/bin/activate
+PYTHONPATH="." pytest tests/ -v
+deactivate
+```
+
 ### Virtual Environment
 ```zsh
 # Activate virtual environment
