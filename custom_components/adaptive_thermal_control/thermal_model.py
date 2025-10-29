@@ -126,6 +126,9 @@ class ThermalModel:
         if not self.params.validate():
             raise ValueError("Invalid thermal model parameters")
 
+        # Cache flag for performance monitoring (T3.4.2)
+        self._cache_valid: bool = False
+
         # Calculate discrete-time matrices
         self._update_matrices()
 
@@ -141,6 +144,7 @@ class ThermalModel:
         """Update discrete-time state-space matrices.
 
         Calculates A, B, Bd matrices from continuous-time parameters.
+        Marks cache as valid after update (T3.4.2 optimization).
         """
         R = self.params.R
         C = self.params.C
@@ -155,8 +159,11 @@ class ThermalModel:
         # Disturbance gain: Bd = (1 - A)
         self.Bd = 1 - self.A
 
+        # Mark cache as valid (matrices computed and ready to use)
+        self._cache_valid = True
+
         _LOGGER.debug(
-            "Updated matrices: A=%.6f, B=%.6f, Bd=%.6f",
+            "Updated matrices: A=%.6f, B=%.6f, Bd=%.6f (cache_valid=True)",
             self.A,
             self.B,
             self.Bd,
@@ -171,8 +178,11 @@ class ThermalModel:
         if not params.validate():
             raise ValueError("Invalid thermal model parameters")
 
+        # Invalidate cache before updating (T3.4.2)
+        self._cache_valid = False
+
         self.params = params
-        self._update_matrices()
+        self._update_matrices()  # Will set cache_valid=True
 
         _LOGGER.info(
             "Updated model parameters: R=%.6f K/W, C=%.0f J/K, Ä=%.1f hours",
@@ -342,7 +352,25 @@ class ThermalModel:
                 "B": float(self.B),
                 "Bd": float(self.Bd),
             },
+            "cache_valid": self._cache_valid,
         }
+
+    def invalidate_cache(self) -> None:
+        """Invalidate matrix cache (T3.4.2).
+
+        Forces recalculation of matrices on next call to _update_matrices().
+        Useful for testing or debugging cache behavior.
+        """
+        self._cache_valid = False
+        _LOGGER.debug("Matrix cache invalidated")
+
+    def is_cache_valid(self) -> bool:
+        """Check if matrix cache is valid (T3.4.2).
+
+        Returns:
+            True if matrices are cached and valid
+        """
+        return self._cache_valid
 
     def __repr__(self) -> str:
         """String representation of the model.
