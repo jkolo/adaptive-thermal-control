@@ -24,9 +24,11 @@ from homeassistant.helpers.update_coordinator import (
 from .const import (
     CONF_MAX_BOILER_POWER,
     CONF_OUTDOOR_TEMP_ENTITY,
+    CONF_WEATHER_ENTITY,
     DOMAIN,
     UPDATE_INTERVAL,
 )
+from .forecast_provider import ForecastProvider
 from .model_storage import ModelStorage
 from .thermal_model import ThermalModel, ThermalModelParameters
 
@@ -71,6 +73,9 @@ class AdaptiveThermalCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Outdoor temperature entity
         self.outdoor_temp_entity = self.global_config.get(CONF_OUTDOOR_TEMP_ENTITY)
 
+        # Weather entity (for forecasts)
+        self.weather_entity = self.global_config.get(CONF_WEATHER_ENTITY)
+
         # Maximum boiler power (for fair-share allocation)
         self.max_boiler_power = self.global_config.get(CONF_MAX_BOILER_POWER)
 
@@ -82,10 +87,18 @@ class AdaptiveThermalCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.model_storage = ModelStorage(hass)
         self.thermal_models: dict[str, ThermalModel] = {}  # entity_id -> ThermalModel
 
+        # Forecast provider (for MPC)
+        self.forecast_provider = ForecastProvider(
+            hass=hass,
+            weather_entity=self.weather_entity,
+            outdoor_temp_entity=self.outdoor_temp_entity,
+        )
+
         _LOGGER.info(
-            "Initialized coordinator with %d thermostats (max power: %s kW)",
+            "Initialized coordinator with %d thermostats (max power: %s kW, weather: %s)",
             len(self.thermostats_config),
             self.max_boiler_power if self.max_boiler_power else "unlimited",
+            self.weather_entity if self.weather_entity else "not configured",
         )
 
     async def async_load_models(self) -> None:

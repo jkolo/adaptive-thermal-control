@@ -26,6 +26,7 @@ from .const import (
     CONF_ROOM_NAME,
     CONF_ROOM_TEMP_ENTITY,
     CONF_VALVE_ENTITIES,
+    CONTROLLER_TYPE_MPC,
     CONTROLLER_TYPE_PI,
     DEFAULT_DT,
     DEFAULT_KP,
@@ -34,6 +35,10 @@ from .const import (
     DEFAULT_TARGET_TEMP,
     DEFAULT_TI,
     DOMAIN,
+    MPC_CONTROL_HORIZON,
+    MPC_PREDICTION_HORIZON,
+    MPC_WEIGHT_COMFORT,
+    MPC_WEIGHT_ENERGY,
     PRESET_AWAY,
     PRESET_HOME,
     PRESET_MANUAL,
@@ -41,6 +46,7 @@ from .const import (
     UPDATE_INTERVAL,
 )
 from .coordinator import AdaptiveThermalCoordinator
+from .mpc_controller import MPCConfig, MPCController
 from .pi_controller import PIController
 
 _LOGGER = logging.getLogger(__name__)
@@ -135,8 +141,9 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         self._valve_position: float = 0.0  # 0-100%
         self._heating_demand: float = 0.0  # 0-100%
         self._controller_type: str = CONTROLLER_TYPE_PI
+        self._last_control_output: float | None = None  # For MPC warm-start
 
-        # Initialize PI controller
+        # Initialize PI controller (fallback)
         self._pi_controller = PIController(
             kp=DEFAULT_KP,
             ti=DEFAULT_TI,
@@ -145,9 +152,30 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             output_max=100.0,
         )
 
+        # Initialize MPC controller (will be used when model is trained)
+        # Get entity_id for this climate entity (construct from config)
+        self._entity_id = f"climate.{config.get(CONF_ROOM_NAME, 'thermostat').lower().replace(' ', '_')}"
+
+        # MPC configuration
+        mpc_config = MPCConfig(
+            N_p=MPC_PREDICTION_HORIZON,
+            N_c=MPC_CONTROL_HORIZON,
+            dt=UPDATE_INTERVAL,
+            u_min=0.0,
+            u_max=100.0,
+            du_max=50.0,  # Max change per step: 50%
+            w_comfort=MPC_WEIGHT_COMFORT,
+            w_energy=MPC_WEIGHT_ENERGY,
+            w_smooth=0.05,  # Small weight for smooth control
+        )
+
+        self._mpc_controller: MPCController | None = None
+        self._mpc_config = mpc_config
+
         _LOGGER.info(
-            "Initialized climate entity: %s (room temp: %s, valves: %s)",
+            "Initialized climate entity: %s (entity_id: %s, room temp: %s, valves: %s)",
             self._attr_name,
+            self._entity_id,
             self._room_temp_entity,
             self._valve_entities,
         )
@@ -299,16 +327,19 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         self.async_write_ha_state()
 
     async def _async_control_heating(self) -> None:
-        """Execute heating control logic using PI controller.
+        """Execute heating control logic using MPC or PI controller.
 
-        The PI controller provides smooth, stable temperature control with
-        anti-windup protection. This is the fallback controller used before
-        MPC is available or when MPC cannot be used.
+        This method automatically switches between:
+        - MPC: When thermal model is trained and available
+        - PI: Fallback when model is not yet trained
+
+        The switch is logged for debugging and monitoring.
         """
         if self._attr_hvac_mode == HVACMode.OFF:
             await self._set_valve_position(0.0)
-            # Reset PI controller when heating is off
+            # Reset controllers when heating is off
             self._pi_controller.reset()
+            self._last_control_output = None
             return
 
         if self._attr_current_temperature is None:
@@ -318,11 +349,39 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             )
             return
 
+        # Check if thermal model is available and trained
+        thermal_model = self.coordinator.get_thermal_model(self._entity_id)
+        old_controller_type = self._controller_type
+
+        if thermal_model is not None:
+            # Model is trained - use MPC
+            await self._async_control_with_mpc(thermal_model)
+        else:
+            # No trained model - use PI fallback
+            await self._async_control_with_pi()
+
+        # Log controller switch if it changed
+        if self._controller_type != old_controller_type:
+            _LOGGER.info(
+                "Controller switch for %s: %s → %s",
+                self._attr_name,
+                old_controller_type,
+                self._controller_type,
+            )
+
+    async def _async_control_with_pi(self) -> None:
+        """Control heating using PI controller (fallback).
+
+        The PI controller provides smooth, stable temperature control with
+        anti-windup protection. Used when MPC is not available.
+        """
+        self._controller_type = CONTROLLER_TYPE_PI
+
         # Use PI controller to calculate valve position
         valve_position = self._pi_controller.update(
             setpoint=self._attr_target_temperature,
             measurement=self._attr_current_temperature,
-            dt=UPDATE_INTERVAL,  # Use configured update interval
+            dt=UPDATE_INTERVAL,
         )
 
         # Log control decision
@@ -335,6 +394,85 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         )
 
         await self._set_valve_position(valve_position)
+        self._last_control_output = valve_position
+
+    async def _async_control_with_mpc(self, thermal_model) -> None:
+        """Control heating using Model Predictive Control.
+
+        Args:
+            thermal_model: Trained thermal model for this zone
+        """
+        self._controller_type = CONTROLLER_TYPE_MPC
+
+        # Initialize MPC controller if not already done
+        if self._mpc_controller is None:
+            self._mpc_controller = MPCController(
+                model=thermal_model,
+                config=self._mpc_config,
+            )
+            _LOGGER.info("Initialized MPC controller for %s", self._attr_name)
+
+        # Get outdoor temperature forecast
+        try:
+            T_outdoor_forecast = await self.coordinator.forecast_provider.get_outdoor_temperature_forecast(
+                hours=self._mpc_config.N_p * self._mpc_config.dt / 3600.0,
+                dt=self._mpc_config.dt,
+            )
+        except Exception as err:
+            _LOGGER.warning(
+                "Failed to get forecast for %s, falling back to PI: %s",
+                self._attr_name,
+                err,
+            )
+            # Fall back to PI if forecast fails
+            await self._async_control_with_pi()
+            return
+
+        # Compute MPC control
+        try:
+            result = self._mpc_controller.compute_control(
+                T_current=self._attr_current_temperature,
+                T_setpoint=self._attr_target_temperature,
+                T_outdoor_forecast=T_outdoor_forecast,
+                u_last=self._last_control_output,
+            )
+
+            if not result.success:
+                _LOGGER.warning(
+                    "MPC optimization failed for %s: %s. Falling back to PI.",
+                    self._attr_name,
+                    result.message,
+                )
+                # Fall back to PI if optimization fails
+                await self._async_control_with_pi()
+                return
+
+            # Apply first control action (receding horizon)
+            valve_position = result.u_optimal[0]
+
+            # Log control decision
+            _LOGGER.info(
+                "MPC control for %s: target=%.1f°C, current=%.1f°C, valve=%.1f%%, "
+                "cost=%.3f, iterations=%d",
+                self._attr_name,
+                self._attr_target_temperature,
+                self._attr_current_temperature,
+                valve_position,
+                result.cost,
+                result.n_iterations,
+            )
+
+            await self._set_valve_position(valve_position)
+            self._last_control_output = valve_position
+
+        except Exception as err:
+            _LOGGER.error(
+                "MPC control error for %s: %s. Falling back to PI.",
+                self._attr_name,
+                err,
+            )
+            # Fall back to PI on any error
+            await self._async_control_with_pi()
 
     async def _set_valve_position(self, position: float) -> None:
         """Set valve position (0-100%).
