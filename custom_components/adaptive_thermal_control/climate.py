@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import time
 from typing import Any
 
 from homeassistant.components.climate import (
@@ -20,6 +22,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     ATTR_CONTROLLER_TYPE,
     ATTR_HEATING_DEMAND,
+    ATTR_MPC_FAILURE_COUNT,
+    ATTR_MPC_LAST_FAILURE_REASON,
+    ATTR_MPC_STATUS,
     ATTR_VALVE_POSITION,
     CONF_MAX_TEMP,
     CONF_MIN_TEMP,
@@ -36,7 +41,11 @@ from .const import (
     DEFAULT_TI,
     DOMAIN,
     MPC_CONTROL_HORIZON,
+    MPC_MAX_FAILURES,
     MPC_PREDICTION_HORIZON,
+    MPC_RETRY_INTERVAL,
+    MPC_SUCCESS_COUNT_TO_RECOVER,
+    MPC_TIMEOUT,
     MPC_WEIGHT_COMFORT,
     MPC_WEIGHT_ENERGY,
     PRESET_AWAY,
@@ -143,6 +152,14 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         self._controller_type: str = CONTROLLER_TYPE_PI
         self._last_control_output: float | None = None  # For MPC warm-start
 
+        # Failsafe state (T3.6.1)
+        self._mpc_status: str = "active"  # "active", "degraded", "disabled"
+        self._mpc_failure_count: int = 0  # Consecutive MPC failures
+        self._mpc_success_count: int = 0  # Consecutive MPC successes (for recovery)
+        self._mpc_last_failure_reason: str | None = None
+        self._mpc_last_failure_time: float | None = None  # Unix timestamp
+        self._mpc_permanently_disabled: bool = False
+
         # Initialize PI controller (fallback)
         self._pi_controller = PIController(
             kp=DEFAULT_KP,
@@ -158,8 +175,8 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
 
         # MPC configuration
         mpc_config = MPCConfig(
-            N_p=MPC_PREDICTION_HORIZON,
-            N_c=MPC_CONTROL_HORIZON,
+            Np=MPC_PREDICTION_HORIZON,
+            Nc=MPC_CONTROL_HORIZON,
             dt=UPDATE_INTERVAL,
             u_min=0.0,
             u_max=100.0,
@@ -191,6 +208,9 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             ATTR_VALVE_POSITION: self._valve_position,
             ATTR_HEATING_DEMAND: self._heating_demand,
             ATTR_CONTROLLER_TYPE: self._controller_type,
+            ATTR_MPC_STATUS: self._mpc_status,
+            ATTR_MPC_FAILURE_COUNT: self._mpc_failure_count,
+            ATTR_MPC_LAST_FAILURE_REASON: self._mpc_last_failure_reason,
         }
 
     def _handle_coordinator_update(self) -> None:
@@ -397,11 +417,36 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         self._last_control_output = valve_position
 
     async def _async_control_with_mpc(self, thermal_model) -> None:
-        """Control heating using Model Predictive Control.
+        """Control heating using Model Predictive Control with failsafe mechanism (T3.6.1).
+
+        Features:
+        - Timeout protection (> 10s)
+        - Failure counter (3 consecutive failures → permanent PI fallback)
+        - Automatic recovery (5 consecutive successes → back to MPC)
+        - Persistent notifications on failures
 
         Args:
             thermal_model: Trained thermal model for this zone
         """
+        # Check if MPC is permanently disabled
+        if self._mpc_permanently_disabled:
+            # Check if we should retry MPC after retry interval
+            if (
+                self._mpc_last_failure_time
+                and (time.time() - self._mpc_last_failure_time) > MPC_RETRY_INTERVAL
+            ):
+                _LOGGER.info(
+                    "Retry interval elapsed for %s. Attempting to re-enable MPC.",
+                    self._attr_name,
+                )
+                self._mpc_permanently_disabled = False
+                self._mpc_failure_count = 0
+                self._mpc_status = "active"
+            else:
+                # Still in retry interval, use PI
+                await self._async_control_with_pi()
+                return
+
         self._controller_type = CONTROLLER_TYPE_MPC
 
         # Initialize MPC controller if not already done
@@ -415,37 +460,65 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         # Get outdoor temperature forecast
         try:
             T_outdoor_forecast = await self.coordinator.forecast_provider.get_outdoor_temperature_forecast(
-                hours=self._mpc_config.N_p * self._mpc_config.dt / 3600.0,
+                hours=self._mpc_config.Np * self._mpc_config.dt / 3600.0,
                 dt=self._mpc_config.dt,
             )
         except Exception as err:
-            _LOGGER.warning(
-                "Failed to get forecast for %s, falling back to PI: %s",
-                self._attr_name,
-                err,
-            )
-            # Fall back to PI if forecast fails
-            await self._async_control_with_pi()
+            await self._handle_mpc_failure(f"Forecast failed: {err}")
             return
 
-        # Compute MPC control
+        # Compute MPC control with timeout protection
         try:
-            result = self._mpc_controller.compute_control(
-                T_current=self._attr_current_temperature,
-                T_setpoint=self._attr_target_temperature,
-                T_outdoor_forecast=T_outdoor_forecast,
-                u_last=self._last_control_output,
+            start_time = time.time()
+
+            # Run MPC with timeout
+            result = await asyncio.wait_for(
+                asyncio.to_thread(
+                    self._mpc_controller.compute_control,
+                    T_current=self._attr_current_temperature,
+                    T_setpoint=self._attr_target_temperature,
+                    T_outdoor_forecast=T_outdoor_forecast,
+                    u_last=self._last_control_output,
+                ),
+                timeout=MPC_TIMEOUT,
             )
 
+            computation_time = time.time() - start_time
+
+            # Check if optimization succeeded
             if not result.success:
-                _LOGGER.warning(
-                    "MPC optimization failed for %s: %s. Falling back to PI.",
-                    self._attr_name,
-                    result.message,
-                )
-                # Fall back to PI if optimization fails
-                await self._async_control_with_pi()
+                await self._handle_mpc_failure(f"Optimization failed: {result.message}")
                 return
+
+            # MPC succeeded - update success counter
+            self._mpc_failure_count = 0
+            self._mpc_success_count += 1
+            self._mpc_last_failure_reason = None
+
+            # Check if we should update status back to "active" after recovery
+            if (
+                self._mpc_status == "degraded"
+                and self._mpc_success_count >= MPC_SUCCESS_COUNT_TO_RECOVER
+            ):
+                _LOGGER.info(
+                    "MPC recovered for %s after %d successful cycles. Status: degraded → active",
+                    self._attr_name,
+                    self._mpc_success_count,
+                )
+                self._mpc_status = "active"
+                self._mpc_success_count = 0
+
+                # Send recovery notification
+                await self.hass.services.async_call(
+                    "persistent_notification",
+                    "create",
+                    {
+                        "title": f"MPC Recovered: {self._attr_name}",
+                        "message": f"Model Predictive Control has successfully recovered for {self._attr_name} "
+                        f"after {MPC_SUCCESS_COUNT_TO_RECOVER} successful control cycles.",
+                        "notification_id": f"{DOMAIN}_mpc_recovered_{self._entity_id}",
+                    },
+                )
 
             # Apply first control action (receding horizon)
             valve_position = result.u_optimal[0]
@@ -453,26 +526,94 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             # Log control decision
             _LOGGER.info(
                 "MPC control for %s: target=%.1f°C, current=%.1f°C, valve=%.1f%%, "
-                "cost=%.3f, iterations=%d",
+                "cost=%.3f, iterations=%d, time=%.3fs",
                 self._attr_name,
                 self._attr_target_temperature,
                 self._attr_current_temperature,
                 valve_position,
                 result.cost,
-                result.n_iterations,
+                result.iterations,
+                computation_time,
             )
 
             await self._set_valve_position(valve_position)
             self._last_control_output = valve_position
 
+        except asyncio.TimeoutError:
+            await self._handle_mpc_failure(f"Timeout (>{MPC_TIMEOUT}s)")
+
         except Exception as err:
+            await self._handle_mpc_failure(f"Exception: {err}")
+
+    async def _handle_mpc_failure(self, reason: str) -> None:
+        """Handle MPC failure with failsafe logic (T3.6.1).
+
+        Args:
+            reason: Reason for the failure
+        """
+        self._mpc_failure_count += 1
+        self._mpc_success_count = 0  # Reset success counter
+        self._mpc_last_failure_reason = reason
+        self._mpc_last_failure_time = time.time()
+
+        _LOGGER.warning(
+            "MPC failure #%d for %s: %s. Falling back to PI.",
+            self._mpc_failure_count,
+            self._attr_name,
+            reason,
+        )
+
+        # Check if we've exceeded maximum failures
+        if self._mpc_failure_count >= MPC_MAX_FAILURES:
             _LOGGER.error(
-                "MPC control error for %s: %s. Falling back to PI.",
+                "MPC permanently disabled for %s after %d consecutive failures. "
+                "Will retry in %d seconds.",
                 self._attr_name,
-                err,
+                self._mpc_failure_count,
+                MPC_RETRY_INTERVAL,
             )
-            # Fall back to PI on any error
-            await self._async_control_with_pi()
+            self._mpc_permanently_disabled = True
+            self._mpc_status = "disabled"
+
+            # Send persistent notification about permanent failure
+            await self.hass.services.async_call(
+                "persistent_notification",
+                "create",
+                {
+                    "title": f"⚠️ MPC Disabled: {self._attr_name}",
+                    "message": f"Model Predictive Control has been disabled for {self._attr_name} "
+                    f"after {MPC_MAX_FAILURES} consecutive failures.\n\n"
+                    f"**Last failure:** {reason}\n\n"
+                    f"System will retry MPC in {MPC_RETRY_INTERVAL // 60} minutes. "
+                    f"Currently using PI controller as fallback.\n\n"
+                    f"**Recommended actions:**\n"
+                    f"- Check sensor availability\n"
+                    f"- Verify thermal model quality\n"
+                    f"- Review logs for details",
+                    "notification_id": f"{DOMAIN}_mpc_disabled_{self._entity_id}",
+                },
+            )
+        else:
+            # Degraded but not disabled yet
+            self._mpc_status = "degraded"
+
+            # Send notification about degradation (but not every time, only on first failure)
+            if self._mpc_failure_count == 1:
+                await self.hass.services.async_call(
+                    "persistent_notification",
+                    "create",
+                    {
+                        "title": f"⚠️ MPC Degraded: {self._attr_name}",
+                        "message": f"Model Predictive Control encountered an issue for {self._attr_name}.\n\n"
+                        f"**Reason:** {reason}\n\n"
+                        f"System will fall back to PI controller and retry MPC on next cycle.\n"
+                        f"Failures: {self._mpc_failure_count}/{MPC_MAX_FAILURES}",
+                        "notification_id": f"{DOMAIN}_mpc_degraded_{self._entity_id}",
+                    },
+                )
+
+        # Fall back to PI controller
+        await self._async_control_with_pi()
 
     async def _set_valve_position(self, position: float) -> None:
         """Set valve position (0-100%).

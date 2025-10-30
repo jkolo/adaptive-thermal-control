@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f35a72d-e323-49bf-94d3-fe1e447e99fc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Adaptive Thermal Control.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Adaptive Thermal Control.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.task/phase-3-mpc-core.md" beforeDir="false" afterPath="$PROJECT_DIR$/.task/phase-3-mpc-core.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/adaptive_thermal_control/climate.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/adaptive_thermal_control/climate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/adaptive_thermal_control/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/adaptive_thermal_control/const.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,6 +103,8 @@
       <workItem from="1761522974529" duration="13009000" />
       <workItem from="1761585822114" duration="9250000" />
       <workItem from="1761690012631" duration="1242000" />
+      <workItem from="1761698840714" duration="2038000" />
+      <workItem from="1761760216834" duration="3921000" />
     </task>
     <servers />
   </component>

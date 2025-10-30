@@ -56,6 +56,12 @@ MPC_CONTROL_HORIZON: Final = 12  # Nc - control steps (2 hours with dt=10min)
 MPC_WEIGHT_COMFORT: Final = 1.0  # Weight for comfort in cost function
 MPC_WEIGHT_ENERGY: Final = 0.1  # Weight for energy in cost function
 
+# Failsafe parameters (T3.6.1)
+MPC_MAX_FAILURES: Final = 3  # Maximum consecutive MPC failures before permanent fallback
+MPC_TIMEOUT: Final = 10.0  # Maximum MPC computation time [seconds]
+MPC_RETRY_INTERVAL: Final = 3600  # Time to wait before retrying MPC after failures [seconds]
+MPC_SUCCESS_COUNT_TO_RECOVER: Final = 5  # Consecutive successes needed to consider MPC stable
+
 # Thermal model parameters (placeholders for Phase 2)
 THERMAL_MODEL_R_DEFAULT: Final = 0.01  # Default thermal resistance [K/W]
 THERMAL_MODEL_C_DEFAULT: Final = 1e6  # Default thermal capacity [J/K]
@@ -89,3 +95,6 @@ ATTR_CONTROLLER_TYPE: Final = "controller_type"
 ATTR_TOTAL_POWER_USAGE: Final = "total_power_usage"
 ATTR_PREDICTION_HORIZON: Final = "prediction_horizon"
 ATTR_MODEL_PARAMETERS: Final = "model_parameters"
+ATTR_MPC_STATUS: Final = "mpc_status"  # "active", "degraded", "disabled"
+ATTR_MPC_FAILURE_COUNT: Final = "mpc_failure_count"
+ATTR_MPC_LAST_FAILURE_REASON: Final = "mpc_last_failure_reason"
