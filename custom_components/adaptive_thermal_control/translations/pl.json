@@ -5,13 +5,13 @@
         "title": "Konfiguracja Globalna",
         "description": "Skonfiguruj ustawienia globalne dla Adaptacyjnego Sterowania Cieplnego",
         "data": {
-          "outdoor_temp_entity": "Czujnik Temperatury Zewntrznej",
-          "heating_switch_entity": "PrzeBcznik Systemu Grzewczego",
+          "outdoor_temp_entity": "Czujnik Temperatury Zewnętrznej",
+          "heating_switch_entity": "Przełącznik Systemu Grzewczego",
           "energy_price_entity": "Czujnik Ceny Energii",
           "weather_entity": "Encja Pogody",
-          "solar_irradiance_entity": "Czujnik NasBonecznienia",
-          "energy_consumption_entity": "Czujnik Zu|ycia Energii",
-          "max_boiler_power": "Maksymalna Moc KotBa (kW)"
+          "solar_irradiance_entity": "Czujnik Nasłonecznienia",
+          "energy_consumption_entity": "Czujnik Zużycia Energii",
+          "max_boiler_power": "Maksymalna Moc Kotła (kW)"
         }
       },
       "add_thermostat": {
@@ -20,33 +20,33 @@
         "data": {
           "room_name": "Nazwa Pomieszczenia",
           "room_temp_entity": "Czujnik Temperatury Pomieszczenia",
-          "valve_entities": "Encje Sterujce Zaworami",
-          "water_temp_in_entity": "Czujnik Temperatury Wody na Wej[ciu",
-          "water_temp_out_entity": "Czujnik Temperatury Wody na Wyj[ciu",
+          "valve_entities": "Encje Sterujące Zaworami",
+          "water_temp_in_entity": "Czujnik Temperatury Wody na Wejściu",
+          "water_temp_out_entity": "Czujnik Temperatury Wody na Wyjściu",
           "valve_open_time": "Czas Otwierania Zaworu (sekundy)",
           "valve_close_time": "Czas Zamykania Zaworu (sekundy)",
-          "neighboring_rooms": "Ssiadujce Pomieszczenia",
+          "neighboring_rooms": "Sąsiadujące Pomieszczenia",
           "window_orientations": "Orientacja Okien",
-          "room_area": "Powierzchnia Pomieszczenia (m�)",
-          "min_temp": "Temperatura Minimalna (�C)",
-          "max_temp": "Temperatura Maksymalna (�C)"
+          "room_area": "Powierzchnia Pomieszczenia (m²)",
+          "min_temp": "Temperatura Minimalna (°C)",
+          "max_temp": "Temperatura Maksymalna (°C)"
         }
       },
       "add_another": {
-        "title": "Doda Kolejny Termostat?",
-        "description": "Skonfigurowano {count} termostat(�w). Czy chcesz doda kolejny?",
+        "title": "Dodać Kolejny Termostat?",
+        "description": "Skonfigurowano {count} termostat(ów). Czy chcesz dodać kolejny?",
         "data": {
           "add_another": "Dodaj kolejny termostat"
         }
       }
     },
     "error": {
-      "entity_not_found": "Encja nie zostaBa znaleziona w Home Assistant",
+      "entity_not_found": "Encja nie została znaleziona w Home Assistant",
       "required": "To pole jest wymagane",
-      "min_max_invalid": "Temperatura minimalna musi by mniejsza ni| maksymalna"
+      "min_max_invalid": "Temperatura minimalna musi być mniejsza niż maksymalna"
     },
     "abort": {
-      "already_configured": "Ta integracja jest ju| skonfigurowana"
+      "already_configured": "Ta integracja jest już skonfigurowana"
     }
   },
   "options": {
@@ -65,7 +65,7 @@
             "name": "Pozycja Zaworu"
           },
           "heating_demand": {
-            "name": "Zapotrzebowanie na CiepBo"
+            "name": "Zapotrzebowanie na Ciepło"
           },
           "controller_type": {
             "name": "Typ Regulatora"
@@ -78,9 +78,9 @@
     "preset_mode": {
       "options": {
         "home": "Dom",
-        "away": "Nieobecno[",
+        "away": "Nieobecność",
         "sleep": "Sen",
-        "manual": "Rczny"
+        "manual": "Ręczny"
       }
     }
   }
