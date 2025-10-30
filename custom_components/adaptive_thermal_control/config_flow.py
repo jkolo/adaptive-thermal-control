@@ -48,7 +48,7 @@ _LOGGER = logging.getLogger(__name__)
 STEP_GLOBAL_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_OUTDOOR_TEMP_ENTITY): selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
+            selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
         ),
         vol.Optional(CONF_HEATING_SWITCH_ENTITY): selector.EntitySelector(
             selector.EntitySelectorConfig(domain="switch")
@@ -150,7 +150,7 @@ class AdaptiveThermalControlConfigFlow(config_entries.ConfigFlow, domain=DOMAIN)
             {
                 vol.Required(CONF_ROOM_NAME): selector.TextSelector(),
                 vol.Required(CONF_ROOM_TEMP_ENTITY): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
                 ),
                 vol.Required(CONF_VALVE_ENTITIES): selector.EntitySelector(
                     selector.EntitySelectorConfig(
@@ -159,10 +159,10 @@ class AdaptiveThermalControlConfigFlow(config_entries.ConfigFlow, domain=DOMAIN)
                     )
                 ),
                 vol.Optional(CONF_WATER_TEMP_IN_ENTITY): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
                 ),
                 vol.Optional(CONF_WATER_TEMP_OUT_ENTITY): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
                 ),
                 vol.Optional(
                     CONF_VALVE_OPEN_TIME, default=DEFAULT_VALVE_OPEN_TIME
