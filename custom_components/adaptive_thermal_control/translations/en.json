@@ -27,9 +27,9 @@
           "valve_close_time": "Valve Closing Time (seconds)",
           "neighboring_rooms": "Neighboring Rooms",
           "window_orientations": "Window Orientations",
-          "room_area": "Room Area (m²)",
-          "min_temp": "Minimum Temperature (°C)",
-          "max_temp": "Maximum Temperature (°C)"
+          "room_area": "Room Area (mÂ²)",
+          "min_temp": "Minimum Temperature (Â°C)",
+          "max_temp": "Maximum Temperature (Â°C)"
         }
       },
       "add_another": {
