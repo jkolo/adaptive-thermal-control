@@ -1,6 +1,6 @@
 # Faza 3: MPC Core (Miesiąc 3-4)
 
-**Status:** 🟡 W trakcie (26% - 10/38 zadań ukończonych)
+**Status:** 🟡 W trakcie (37% - 14/38 zadań ukończonych)
 
 **Cel:** Działający algorytm Model Predictive Control
 
@@ -181,19 +181,26 @@
 
 ### 3.5 Tuning parametrów MPC
 
-- [ ] **T3.5.1:** Implementuj `mpc_tuner.py` - narzędzie do tuningu
+- [x] **T3.5.1:** Implementuj `mpc_tuner.py` - narzędzie do tuningu ✅
   - **Priorytet:** Średni
-  - **Czas:** 4h
-  - **Zależności:** T3.1.4
+  - **Czas:** 4h → 3.5h (rzeczywisty)
+  - **Zależności:** T3.1.4 ✅
+  - **Status:** 19 testów w test_mpc_tuner.py (wszystkie przechodzą)
+  - **Implementacja:**
+    - MPCTuner class z grid_search() metodą
+    - TuningResult dataclass (RMSE, energy, smoothness, score)
+    - Pareto-optimal selection (find_pareto_optimal)
+    - Parameter recommendations (balanced/comfort/energy preferences)
+    - Full 24h simulation for each parameter set
   - **Kryteria akceptacji:**
-    - [ ] Funkcja `grid_search(param_grid, test_data) -> best_params`
-    - [ ] Grid search po wagach w_comfort, w_energy, w_smooth
-    - [ ] Symulacja z różnymi parametrami
-    - [ ] Metryki wydajności:
-      - RMSE (błąd temperatury)
-      - Total energy consumption
-      - Control smoothness (suma Δu²)
-    - [ ] Wybór Pareto-optymalny (trade-off comfort vs energy)
+    - [x] Funkcja `grid_search(param_grid, test_data) -> best_params`
+    - [x] Grid search po wagach w_comfort, w_energy, w_smooth
+    - [x] Symulacja z różnymi parametrami
+    - [x] Metryki wydajności:
+      - [x] RMSE (błąd temperatury)
+      - [x] Total energy consumption
+      - [x] Control smoothness (suma Δu²)
+    - [x] Wybór Pareto-optymalny (trade-off comfort vs energy)
 
 - [ ] **T3.5.2:** Automatyczne dostrajanie (opcjonalnie)
   - **Priorytet:** Niski

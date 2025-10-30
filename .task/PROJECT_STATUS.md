@@ -1,6 +1,6 @@
 # Status Projektu - Adaptive Thermal Control
 
-**Data ostatniej aktualizacji:** 2025-10-30 (Control quality monitoring complete - T3.6.2)
+**Data ostatniej aktualizacji:** 2025-10-30 (MPC tuning tools complete - T3.5.1)
 
 ---
 
@@ -8,11 +8,11 @@
 
 | Metryka | Wartość |
 |---------|---------|
-| **Faza projektu** | 🟡 Faza 3 - MPC Core (34% ukończone) |
-| **Postęp ogólny** | 34% (13/38 zadań Fazy 3) |
+| **Faza projektu** | 🟡 Faza 3 - MPC Core (37% ukończone) |
+| **Postęp ogólny** | 37% (14/38 zadań Fazy 3) |
 | **Czas do v1.0** | ~3.2 miesięcy |
-| **Otwarte zadania** | ~145 (wszystkie fazy) |
-| **Ukończone zadania** | 52/197 (26%) |
+| **Otwarte zadania** | ~144 (wszystkie fazy) |
+| **Ukończone zadania** | 53/197 (27%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -23,12 +23,12 @@
 |------|--------|--------|------|-----------|
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ Ukończona | 71% (15/21 zadań, kluczowe 100%) | - | WYSOKI |
-| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 34% (13/38 zadań) | 4-6 tyg | **WYSOKI** |
+| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 37% (14/38 zadań) | 4-6 tyg | **WYSOKI** |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (52 ukończone, 145 pozostałych)
+**Łącznie:** 197 zadań (53 ukończone, 144 pozostałych)
 
 **Uwaga:** Faza 2 ma 6 zadań opcjonalnych (T2.2.4, T2.3.3, T2.4.1-3, T2.5.3) które można zaimplementować później
 
@@ -39,7 +39,7 @@
 ```
 Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
 Miesiąc 2: [████████████████████████░░░░] Faza 2 (71% ✅ kluczowe ukończone)
-Miesiąc 3: [█████████░░░░░░░░░░░░░░░░░░░] Faza 3 (34% - MPC + integration + monitoring)
+Miesiąc 3: [██████████░░░░░░░░░░░░░░░░░░] Faza 3 (37% - MPC + tuning + monitoring)
                    ▲ Tu jesteśmy
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont. - testing + documentation)
 Miesiąc 5: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 4
@@ -98,8 +98,13 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
      - MPC: RMSE=2.46°C, Energy=20.77 kWh over 24h
      - PI comparable but slightly better for simple 1R1C (expected)
      - MPC validated for full-day operation
-   - [ ] MPC tuning tools (T3.5.x) - next up
-   - [ ] Diagnostic sensors (T3.7.x)
+   - [x] MPC tuning tools (T3.5.1) ✅
+     - Grid search over weight combinations (w_comfort, w_energy, w_smooth)
+     - Performance metrics: RMSE, energy, smoothness
+     - Pareto-optimal selection
+     - Preference-based recommendations (balanced/comfort/energy)
+     - 19 comprehensive tests (100% pass)
+   - [ ] Diagnostic sensors (T3.7.x) - next up
    - [ ] Real-world testing (T3.8.3)
    - [ ] Documentation (T3.8.4)
 
@@ -122,8 +127,8 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Metryka | Aktualna | Cel v1.0 |
 |---------|----------|----------|
-| Lines of Code | ~7,800 | ~3000-5000 |
-| Test Coverage | ~65% (96+ tests passing) | 80%+ |
+| Lines of Code | ~8,200 | ~3000-5000 |
+| Test Coverage | ~66% (115+ tests passing) | 80%+ |
 | Modules | 15 | ~15 ✅ |
 | Functions | ~130+ | ~120+ ✅ |
 | Classes | 16 | ~16 ✅ |
@@ -143,11 +148,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Typ testu | Zaimplementowane | Przechodzące |
 |-----------|------------------|--------------|
-| Unit tests | 89 | 89 |
+| Unit tests | 108 | 108 |
 | Integration tests | 7 | 3* |
 | End-to-end tests | 0 | 0 |
 
-**Łącznie:** 96 testy przechodzące ✅ (4 integration tests mają problemy z RLS na danych syntetycznych)
+**Łącznie:** 115 testy przechodzące ✅ (4 integration tests mają problemy z RLS na danych syntetycznych)
 
 *Uwaga: 4 testy integracyjne RLS (test_integration_training.py) niestabilne na danych syntetycznych - do poprawienia później*
 
@@ -188,7 +193,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 - [ ] Test na rzeczywistych danych z Home Assistant
 - [ ] MPC lepszy niż PI (mierzalne wyniki w działającym systemie)
 
-**Status:** 🟡 W trakcie (26% - controller gotowy + zoptymalizowany, brakuje testów rzeczywistych)
+**Status:** 🟡 W trakcie (37% - controller gotowy + zoptymalizowany + tuning tools, brakuje testów rzeczywistych)
 
 ---
 
@@ -291,10 +296,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-29 | Failsafe mechanism - timeout, failure counter, notifications | Faza 3 (29%, ✅) |
 | 2025-10-30 | 24h integration test - MPC vs PI comparison validated | Faza 3 (32%, ✅) |
 | 2025-10-30 | Control quality monitoring - rolling RMSE sensor | Faza 3 (34%, ✅) |
+| 2025-10-30 | MPC tuning tools - grid search with Pareto optimization | Faza 3 (37%, ✅) |
 
 ---
 
-**Następna aktualizacja:** Po implementacji MPC tuning tools lub diagnostic sensors
+**Następna aktualizacja:** Po implementacji diagnostic sensors (T3.7.x) lub dokumentacji MPC (T3.8.4)
 
 ---
 
