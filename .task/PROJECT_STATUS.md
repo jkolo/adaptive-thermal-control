@@ -1,6 +1,6 @@
 # Status Projektu - Adaptive Thermal Control
 
-**Data ostatniej aktualizacji:** 2025-10-31 (Temperature prediction sensor - T3.7.2)
+**Data ostatniej aktualizacji:** 2025-10-31 (Config flow tests - T1.2.4)
 
 ---
 
@@ -12,7 +12,7 @@
 | **Postęp ogólny** | 47% (18/38 zadań Fazy 3) |
 | **Czas do v1.0** | ~3.2 miesięcy |
 | **Otwarte zadania** | ~140 (wszystkie fazy) |
-| **Ukończone zadania** | 57/197 (29%) |
+| **Ukończone zadania** | 58/197 (29%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -21,14 +21,14 @@
 
 | Faza | Status | Postęp | Czas | Priorytet |
 |------|--------|--------|------|-----------|
-| [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
+| [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 87% (21/24 zadań) | - | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ Ukończona | 71% (15/21 zadań, kluczowe 100%) | - | WYSOKI |
 | [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 47% (18/38 zadań) | 4-6 tyg | **WYSOKI** |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (57 ukończone, 140 pozostałe)
+**Łącznie:** 197 zadań (58 ukończone, 139 pozostałe)
 
 **Uwaga:** Faza 2 ma 6 zadań opcjonalnych (T2.2.4, T2.3.3, T2.4.1-3, T2.5.3) które można zaimplementować później
 
@@ -37,7 +37,7 @@
 ## 📅 Timeline
 
 ```
-Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
+Miesiąc 1: [████████████████████████████] Faza 1 (87% ✅)
 Miesiąc 2: [████████████████████████░░░░] Faza 2 (71% ✅ kluczowe ukończone)
 Miesiąc 3: [█████████████░░░░░░░░░░░░░░░] Faza 3 (47% - MPC + tuning + diagnostics + docs + predictions)
                    ▲ Tu jesteśmy
@@ -149,7 +149,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | Metryka | Aktualna | Cel v1.0 |
 |---------|----------|----------|
 | Lines of Code | ~8,500 | ~3000-5000 |
-| Test Coverage | ~67% (134+ tests passing) | 80%+ |
+| Test Coverage | ~67% (147 tests passing) | 80%+ |
 | Modules | 15 | ~15 ✅ |
 | Functions | ~130+ | ~120+ ✅ |
 | Classes | 16 | ~16 ✅ |
@@ -169,11 +169,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Typ testu | Zaimplementowane | Przechodzące |
 |-----------|------------------|--------------|
-| Unit tests | 127 | 127 |
+| Unit tests | 140 | 140 |
 | Integration tests | 7 | 3* |
 | End-to-end tests | 0 | 0 |
 
-**Łącznie:** 134 testy przechodzące ✅ (4 integration tests mają problemy z RLS na danych syntetycznych)
+**Łącznie:** 147 testów przechodzących ✅ (4 integration tests mają problemy z RLS na danych syntetycznych)
 
 *Uwaga: 4 testy integracyjne RLS (test_integration_training.py) niestabilne na danych syntetycznych - do poprawienia później*
 
@@ -189,7 +189,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 - [x] Integracja z HA recorder ✅
 - [ ] Testy jednostkowe (opcjonalne)
 
-**Status:** 🟢 Praktycznie ukończony (83%)
+**Status:** 🟢 Praktycznie ukończony (87%)
 
 ---
 
@@ -322,6 +322,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-30 | MPC documentation - comprehensive README section (~400 lines) | Faza 3 (42%, ✅) |
 | 2025-10-31 | MPC control plan export - u_optimal + predicted_temps attributes | Faza 3 (45%, ✅) |
 | 2025-10-31 | Temperature prediction sensor - forecast visualization | Faza 3 (47%, ✅) |
+| 2025-10-31 | Config flow tests - 13 comprehensive tests for UI configuration | Faza 1 (87%, ✅) |
 
 ---
 
