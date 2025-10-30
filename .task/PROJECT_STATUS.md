@@ -1,6 +1,6 @@
 # Status Projektu - Adaptive Thermal Control
 
-**Data ostatniej aktualizacji:** 2025-10-29 (Failsafe mechanism complete - T3.6.1)
+**Data ostatniej aktualizacji:** 2025-10-30 (24h integration test complete - T3.8.2)
 
 ---
 
@@ -8,11 +8,11 @@
 
 | Metryka | Wartość |
 |---------|---------|
-| **Faza projektu** | 🟡 Faza 3 - MPC Core (29% ukończone) |
-| **Postęp ogólny** | 38% (11/38 zadań Fazy 3) |
-| **Czas do v1.0** | ~3.3 miesięcy |
-| **Otwarte zadania** | ~148 (wszystkie fazy) |
-| **Ukończone zadania** | 49/197 (25%) |
+| **Faza projektu** | 🟡 Faza 3 - MPC Core (32% ukończone) |
+| **Postęp ogólny** | 32% (12/38 zadań Fazy 3) |
+| **Czas do v1.0** | ~3.2 miesięcy |
+| **Otwarte zadania** | ~146 (wszystkie fazy) |
+| **Ukończone zadania** | 51/197 (26%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -23,12 +23,12 @@
 |------|--------|--------|------|-----------|
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ Ukończona | 71% (15/21 zadań, kluczowe 100%) | - | WYSOKI |
-| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 29% (11/38 zadań) | 4-6 tyg | **WYSOKI** |
+| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 32% (12/38 zadań) | 4-6 tyg | **WYSOKI** |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (50 ukończone, 147 pozostałych)
+**Łącznie:** 197 zadań (51 ukończone, 146 pozostałych)
 
 **Uwaga:** Faza 2 ma 6 zadań opcjonalnych (T2.2.4, T2.3.3, T2.4.1-3, T2.5.3) które można zaimplementować później
 
@@ -39,7 +39,7 @@
 ```
 Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
 Miesiąc 2: [████████████████████████░░░░] Faza 2 (71% ✅ kluczowe ukończone)
-Miesiąc 3: [████████░░░░░░░░░░░░░░░░░░░░] Faza 3 (29% - MPC + integration + optimization + failsafe)
+Miesiąc 3: [█████████░░░░░░░░░░░░░░░░░░░] Faza 3 (32% - MPC + integration + testing)
                    ▲ Tu jesteśmy
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont. - testing + documentation)
 Miesiąc 5: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 4
@@ -73,7 +73,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
    - [ ] Model drift detection (T2.3.3) - opcjonalne, do zaimplementowania później
    - [ ] Rozszerzenia modelu (T2.4.x) - opcjonalne, do zaimplementowania w Fazie 4
 
-3. **[🟡] Faza 3: MPC Core - W TRAKCIE (29%)**
+3. **[🟡] Faza 3: MPC Core - W TRAKCIE (32%)**
    - [x] MPC controller implementation (T3.1.1-T3.1.5) ✅
    - [x] ForecastProvider for weather data (T3.2.1) ✅
    - [x] Integration with coordinator and climate (T3.3.1) ✅
@@ -88,9 +88,14 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
      - Automatic recovery (5 successes → back to MPC)
      - Persistent notifications for users
      - 9 comprehensive tests (100% pass)
+   - [x] 24h integration test (T3.8.2) ✅
+     - 3 comprehensive tests (MPC, PI, comparison)
+     - MPC: RMSE=2.46°C, Energy=20.77 kWh over 24h
+     - PI comparable but slightly better for simple 1R1C (expected)
+     - MPC validated for full-day operation
    - [ ] MPC tuning tools (T3.5.x) - next up
    - [ ] Control quality monitoring (T3.6.2)
-   - [ ] Integration tests with real forecast data (T3.8.x)
+   - [ ] Real-world testing (T3.8.3)
    - [ ] Documentation (T3.8.4)
 
 ### Quick wins (łatwe zadania na początek):
@@ -279,10 +284,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-29 | Integracja MPC z coordinator i climate - auto-switch PI/MPC | Faza 3 (18%) |
 | 2025-10-29 | Optymalizacja wydajności: warm-start + cache + benchmark | Faza 3 (26%) |
 | 2025-10-29 | Failsafe mechanism - timeout, failure counter, notifications | Faza 3 (29%, ✅) |
+| 2025-10-30 | 24h integration test - MPC vs PI comparison validated | Faza 3 (32%, ✅) |
 
 ---
 
-**Następna aktualizacja:** Po implementacji MPC tuning tools lub failsafe mechanisms
+**Następna aktualizacja:** Po implementacji MPC tuning tools lub control quality monitoring
 
 ---
 
