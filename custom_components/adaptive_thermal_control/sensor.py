@@ -94,6 +94,11 @@ async def async_setup_entry(
             MPCOptimizationTimeSensor(coordinator, climate_entity, room_id)
         )
 
+        # Temperature prediction sensor (T3.7.2)
+        sensors.append(
+            TemperaturePredictionSensor(coordinator, climate_entity, room_id)
+        )
+
     async_add_entities(sensors)
 
     _LOGGER.info("Set up %d diagnostic sensors", len(sensors))
@@ -686,4 +691,68 @@ class MPCOptimizationTimeSensor(ThermalModelSensorBase):
             "milliseconds": round(ms, 2),
             "description": "Time taken for last MPC optimization",
             "target": "< 2000 ms (2 seconds)",
+        }
+
+
+class TemperaturePredictionSensor(ThermalModelSensorBase):
+    """Sensor for MPC predicted temperature trajectory (T3.7.2)."""
+
+    _attr_icon = "mdi:chart-line"
+    _attr_device_class = SensorDeviceClass.TEMPERATURE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 1
+
+    def __init__(
+        self,
+        coordinator: AdaptiveThermalCoordinator,
+        climate_entity: str,
+        room_id: str,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, climate_entity, room_id)
+
+        self._attr_name = f"{room_id} Temperature Prediction"
+        self._attr_unique_id = f"{climate_entity}_temperature_prediction"
+        self._attr_native_unit_of_measurement = "°C"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the next predicted temperature (10 minutes ahead)."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return None
+
+        predicted_temps = climate_state.attributes.get("predicted_temps")
+        if not predicted_temps or len(predicted_temps) < 2:
+            return None
+
+        # Return first prediction (T(+10min), skip T(0) which is current)
+        return predicted_temps[1]
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the full prediction trajectory as attributes."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return {}
+
+        predicted_temps = climate_state.attributes.get("predicted_temps")
+        if not predicted_temps:
+            return {}
+
+        # Create forecast with timestamps
+        # Assuming 10-minute intervals (dt=600s)
+        forecast = []
+        for i, temp in enumerate(predicted_temps):
+            minutes_ahead = i * 10
+            forecast.append({
+                "time": f"+{minutes_ahead}min",
+                "temperature": temp,
+            })
+
+        return {
+            "forecast": forecast,
+            "horizon_minutes": len(predicted_temps) * 10,
+            "horizon_hours": round(len(predicted_temps) * 10 / 60, 1),
+            "description": "Predicted temperature trajectory from MPC",
         }

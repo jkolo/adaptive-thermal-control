@@ -1,6 +1,6 @@
 # Status Projektu - Adaptive Thermal Control
 
-**Data ostatniej aktualizacji:** 2025-10-31 (MPC control plan export - T3.3.2)
+**Data ostatniej aktualizacji:** 2025-10-31 (Temperature prediction sensor - T3.7.2)
 
 ---
 
@@ -8,11 +8,11 @@
 
 | Metryka | Wartość |
 |---------|---------|
-| **Faza projektu** | 🟡 Faza 3 - MPC Core (45% ukończone) |
-| **Postęp ogólny** | 45% (17/38 zadań Fazy 3) |
+| **Faza projektu** | 🟡 Faza 3 - MPC Core (47% ukończone) |
+| **Postęp ogólny** | 47% (18/38 zadań Fazy 3) |
 | **Czas do v1.0** | ~3.2 miesięcy |
-| **Otwarte zadania** | ~141 (wszystkie fazy) |
-| **Ukończone zadania** | 56/197 (28%) |
+| **Otwarte zadania** | ~140 (wszystkie fazy) |
+| **Ukończone zadania** | 57/197 (29%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -23,12 +23,12 @@
 |------|--------|--------|------|-----------|
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ Ukończona | 71% (15/21 zadań, kluczowe 100%) | - | WYSOKI |
-| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 45% (17/38 zadań) | 4-6 tyg | **WYSOKI** |
+| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 47% (18/38 zadań) | 4-6 tyg | **WYSOKI** |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (56 ukończone, 141 pozostałe)
+**Łącznie:** 197 zadań (57 ukończone, 140 pozostałe)
 
 **Uwaga:** Faza 2 ma 6 zadań opcjonalnych (T2.2.4, T2.3.3, T2.4.1-3, T2.5.3) które można zaimplementować później
 
@@ -39,7 +39,7 @@
 ```
 Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
 Miesiąc 2: [████████████████████████░░░░] Faza 2 (71% ✅ kluczowe ukończone)
-Miesiąc 3: [█████████████░░░░░░░░░░░░░░░] Faza 3 (45% - MPC + tuning + diagnostics + docs + control plan)
+Miesiąc 3: [█████████████░░░░░░░░░░░░░░░] Faza 3 (47% - MPC + tuning + diagnostics + docs + predictions)
                    ▲ Tu jesteśmy
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont. - testing + documentation)
 Miesiąc 5: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 4
@@ -73,7 +73,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
    - [ ] Model drift detection (T2.3.3) - opcjonalne, do zaimplementowania później
    - [ ] Rozszerzenia modelu (T2.4.x) - opcjonalne, do zaimplementowania w Fazie 4
 
-3. **[🟡] Faza 3: MPC Core - W TRAKCIE (45%)**
+3. **[🟡] Faza 3: MPC Core - W TRAKCIE (47%)**
    - [x] MPC controller implementation (T3.1.1-T3.1.5) ✅
    - [x] ForecastProvider for weather data (T3.2.1) ✅
    - [x] Integration with coordinator and climate (T3.3.1) ✅
@@ -123,6 +123,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
      - MPC vs PI comparison + performance table
      - Complete tuning guide (quick start + manual + Pareto)
      - FAQ with 9 Q&A including "Why MPC better than PI?"
+   - [x] Temperature prediction sensor (T3.7.2) ✅
+     - Sensor showing next predicted temperature (T(+10min))
+     - Full trajectory as forecast attribute
+     - Horizon information (minutes, hours)
+     - 15 unit tests (100% pass)
 
 ### Quick wins (łatwe zadania na początek):
 
@@ -209,7 +214,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 - [ ] Test na rzeczywistych danych z Home Assistant
 - [ ] MPC lepszy niż PI (mierzalne wyniki w działającym systemie)
 
-**Status:** 🟡 W trakcie (45% - controller + tuning + diagnostics + docs + control plan, brakuje testów rzeczywistych)
+**Status:** 🟡 W trakcie (47% - controller + tuning + diagnostics + docs + predictions, brakuje testów rzeczywistych)
 
 ---
 
@@ -316,10 +321,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-30 | MPC diagnostic sensors - 4 sensors for MPC parameters | Faza 3 (39%, ✅) |
 | 2025-10-30 | MPC documentation - comprehensive README section (~400 lines) | Faza 3 (42%, ✅) |
 | 2025-10-31 | MPC control plan export - u_optimal + predicted_temps attributes | Faza 3 (45%, ✅) |
+| 2025-10-31 | Temperature prediction sensor - forecast visualization | Faza 3 (47%, ✅) |
 
 ---
 
-**Następna aktualizacja:** Po implementacji temperature prediction sensor (T3.7.2) lub real-world testing (T3.8.3)
+**Następna aktualizacja:** Po implementacji automatic MPC tuning (T3.5.2) lub real-world testing (T3.8.3)
 
 ---
 

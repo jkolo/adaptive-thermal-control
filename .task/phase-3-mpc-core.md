@@ -1,6 +1,6 @@
 # Faza 3: MPC Core (Miesiąc 3-4)
 
-**Status:** 🟡 W trakcie (45% - 17/38 zadań ukończonych)
+**Status:** 🟡 W trakcie (47% - 18/38 zadań ukończonych)
 
 **Cel:** Działający algorytm Model Predictive Control
 
@@ -283,15 +283,25 @@
     - [x] `sensor.adaptive_thermal_[pokój]_mpc_weights` - [w_comfort, w_energy, w_smooth] (formatted string + individual attributes)
     - [x] `sensor.adaptive_thermal_[pokój]_mpc_optimization_time` - czas obliczeń [s] (seconds + milliseconds)
 
-- [ ] **T3.7.2:** Sensor predykcji temperatury
+- [x] **T3.7.2:** Sensor predykcji temperatury ✅
   - **Priorytet:** Niski
   - **Czas:** 2h
-  - **Zależności:** T3.3.2
+  - **Zależności:** T3.3.2 ✅
+  - **Status:** Zaimplementowane i przetestowane (15 testów)
+  - **Implementacja:**
+    - Utworzono TemperaturePredictionSensor w sensor.py
+    - native_value: następna przewidywana temperatura (T(+10min))
+    - extra_state_attributes: pełna trajektoria jako forecast
+    - Forecast format: [{time: "+0min", temperature: 20.0}, ...]
+    - Horizon info: minutes, hours, description
+    - device_class: TEMPERATURE, state_class: MEASUREMENT
+    - Icon: mdi:chart-line
   - **Kryteria akceptacji:**
-    - [ ] `sensor.adaptive_thermal_[pokój]_temperature_prediction`
-    - [ ] Atrybut: forecast = [T(+10min), T(+20min), ..., T(+4h)]
-    - [ ] Użytkownik może zobaczyć przewidywaną trajektorię temperatury
-    - [ ] Użyteczne do debugowania
+    - [x] `sensor.adaptive_thermal_[pokój]_temperature_prediction`
+    - [x] Atrybut: forecast = [T(+10min), T(+20min), ..., T(+4h)]
+    - [x] Użytkownik może zobaczyć przewidywaną trajektorię temperatury
+    - [x] Użyteczne do debugowania
+    - [x] 15 unit tests (100% pass)
 
 ---
 
