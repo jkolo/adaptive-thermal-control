@@ -1,6 +1,6 @@
 # Faza 3: MPC Core (Miesiąc 3-4)
 
-**Status:** 🟡 W trakcie (39% - 15/38 zadań ukończonych)
+**Status:** 🟡 W trakcie (42% - 16/38 zadań ukończonych)
 
 **Cel:** Działający algorytm Model Predictive Control
 
@@ -332,16 +332,31 @@
       - Liczba przełączeń zaworu
     - [ ] Porównaj z poprzednim sterowaniem (PI lub ON/OFF)
 
-- [ ] **T3.8.4:** Dokumentacja MPC
+- [x] **T3.8.4:** Dokumentacja MPC ✅
   - **Priorytet:** Średni
   - **Czas:** 3h
   - **Zależności:** T3.8.3
+  - **Status:** Kompletna dokumentacja MPC w README.md (~400 linii)
+  - **Implementacja:**
+    - Sekcja "How it Works - Model Predictive Control (MPC)"
+    - Pełny opis algorytmu (Np, Nc, receding horizon) z diagramami ASCII
+    - Szczegółowe wyjaśnienie funkcji kosztu (3 komponenty: comfort, energy, smoothness)
+    - Tabela guidelines dla tuningu wag
+    - Sekcja o ograniczeniach (box + rate constraints)
+    - Szczegóły optymalizacji (SLSQP, performance: 4ms)
+    - Automatyczne przełączanie PI/MPC + diagram
+    - 4-warstwowy mechanizm failsafe
+    - Lista 10+ sensorów diagnostycznych
+    - Porównanie MPC vs PI (kiedy który jest lepszy)
+    - Tabela porównawcza performance (24h simulation)
+    - Kompletny przewodnik tuningu (quick start + manual + Pareto)
+    - FAQ z 9 pytaniami, w tym "Dlaczego MPC lepsze niż PI?"
   - **Kryteria akceptacji:**
-    - [ ] README sekcja "MPC Algorithm"
-    - [ ] Wyjaśnienie funkcji kosztu (po co każda waga)
-    - [ ] Diagram działania MPC (receding horizon)
-    - [ ] Instrukcja tuningu parametrów
-    - [ ] FAQ: "Dlaczego MPC lepsze niż PI?"
+    - [x] README sekcja "MPC Algorithm"
+    - [x] Wyjaśnienie funkcji kosztu (po co każda waga)
+    - [x] Diagram działania MPC (receding horizon) - ASCII art
+    - [x] Instrukcja tuningu parametrów
+    - [x] FAQ: "Dlaczego MPC lepsze niż PI?"
 
 ---
 

@@ -1,6 +1,6 @@
 # Status Projektu - Adaptive Thermal Control
 
-**Data ostatniej aktualizacji:** 2025-10-30 (MPC diagnostic sensors complete - T3.7.1)
+**Data ostatniej aktualizacji:** 2025-10-30 (MPC documentation complete - T3.8.4)
 
 ---
 
@@ -8,11 +8,11 @@
 
 | Metryka | Wartość |
 |---------|---------|
-| **Faza projektu** | 🟡 Faza 3 - MPC Core (39% ukończone) |
-| **Postęp ogólny** | 39% (15/38 zadań Fazy 3) |
+| **Faza projektu** | 🟡 Faza 3 - MPC Core (42% ukończone) |
+| **Postęp ogólny** | 42% (16/38 zadań Fazy 3) |
 | **Czas do v1.0** | ~3.2 miesięcy |
-| **Otwarte zadania** | ~143 (wszystkie fazy) |
-| **Ukończone zadania** | 54/197 (27%) |
+| **Otwarte zadania** | ~142 (wszystkie fazy) |
+| **Ukończone zadania** | 55/197 (28%) |
 | **Znane bugi** | 0 |
 
 ---
@@ -23,12 +23,12 @@
 |------|--------|--------|------|-----------|
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ Ukończona | 83% (20/24 zadań) | - | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ Ukończona | 71% (15/21 zadań, kluczowe 100%) | - | WYSOKI |
-| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 39% (15/38 zadań) | 4-6 tyg | **WYSOKI** |
+| [Faza 3: MPC Core](./phase-3-mpc-core.md) | 🟡 W trakcie | 42% (16/38 zadań) | 4-6 tyg | **WYSOKI** |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🔴 Nie rozpoczęte | 0% (0/29 zadań) | 4 tyg | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | 🔴 Nie rozpoczęte | 0% (0/27 zadań) | 4 tyg | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | 🔴 Nie rozpoczęte | 0% (0/26 zadań) | 4-6 tyg | Niski |
 
-**Łącznie:** 197 zadań (54 ukończone, 143 pozostałych)
+**Łącznie:** 197 zadań (55 ukończone, 142 pozostałe)
 
 **Uwaga:** Faza 2 ma 6 zadań opcjonalnych (T2.2.4, T2.3.3, T2.4.1-3, T2.5.3) które można zaimplementować później
 
@@ -39,7 +39,7 @@
 ```
 Miesiąc 1: [████████████████████████████] Faza 1 (83% ✅)
 Miesiąc 2: [████████████████████████░░░░] Faza 2 (71% ✅ kluczowe ukończone)
-Miesiąc 3: [███████████░░░░░░░░░░░░░░░░░] Faza 3 (39% - MPC + tuning + diagnostics)
+Miesiąc 3: [████████████░░░░░░░░░░░░░░░░] Faza 3 (42% - MPC + tuning + diagnostics + docs)
                    ▲ Tu jesteśmy
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont. - testing + documentation)
 Miesiąc 5: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 4
@@ -73,7 +73,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
    - [ ] Model drift detection (T2.3.3) - opcjonalne, do zaimplementowania później
    - [ ] Rozszerzenia modelu (T2.4.x) - opcjonalne, do zaimplementowania w Fazie 4
 
-3. **[🟡] Faza 3: MPC Core - W TRAKCIE (34%)**
+3. **[🟡] Faza 3: MPC Core - W TRAKCIE (42%)**
    - [x] MPC controller implementation (T3.1.1-T3.1.5) ✅
    - [x] ForecastProvider for weather data (T3.2.1) ✅
    - [x] Integration with coordinator and climate (T3.3.1) ✅
@@ -110,7 +110,14 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
      - Graceful handling of missing data
      - 19 unit tests (100% pass)
    - [ ] Real-world testing (T3.8.3)
-   - [ ] Documentation (T3.8.4)
+   - [x] Documentation (T3.8.4) ✅
+     - Comprehensive README MPC section (~400 lines)
+     - Algorithm explanation (Np, Nc, receding horizon) with ASCII diagrams
+     - Cost function breakdown + weight tuning guidelines
+     - Automatic PI/MPC switching + failsafe mechanism
+     - MPC vs PI comparison + performance table
+     - Complete tuning guide (quick start + manual + Pareto)
+     - FAQ with 9 Q&A including "Why MPC better than PI?"
 
 ### Quick wins (łatwe zadania na początek):
 
@@ -197,7 +204,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 - [ ] Test na rzeczywistych danych z Home Assistant
 - [ ] MPC lepszy niż PI (mierzalne wyniki w działającym systemie)
 
-**Status:** 🟡 W trakcie (39% - controller gotowy + zoptymalizowany + tuning + diagnostics, brakuje testów rzeczywistych)
+**Status:** 🟡 W trakcie (42% - controller + tuning + diagnostics + docs gotowe, brakuje testów rzeczywistych)
 
 ---
 
@@ -302,10 +309,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-30 | Control quality monitoring - rolling RMSE sensor | Faza 3 (34%, ✅) |
 | 2025-10-30 | MPC tuning tools - grid search with Pareto optimization | Faza 3 (37%, ✅) |
 | 2025-10-30 | MPC diagnostic sensors - 4 sensors for MPC parameters | Faza 3 (39%, ✅) |
+| 2025-10-30 | MPC documentation - comprehensive README section (~400 lines) | Faza 3 (42%, ✅) |
 
 ---
 
-**Następna aktualizacja:** Po implementacji dokumentacji MPC (T3.8.4) lub temperature prediction sensor (T3.7.2)
+**Następna aktualizacja:** Po implementacji temperature prediction sensor (T3.7.2) lub real-world testing (T3.8.3)
 
 ---
 
