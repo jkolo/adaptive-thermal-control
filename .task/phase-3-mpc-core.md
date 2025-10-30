@@ -1,6 +1,6 @@
 # Faza 3: MPC Core (Miesiąc 3-4)
 
-**Status:** 🟡 W trakcie (37% - 14/38 zadań ukończonych)
+**Status:** 🟡 W trakcie (39% - 15/38 zadań ukończonych)
 
 **Cel:** Działający algorytm Model Predictive Control
 
@@ -259,15 +259,21 @@
 
 ### 3.7 Sensory diagnostyczne MPC
 
-- [ ] **T3.7.1:** Sensory parametrów MPC
+- [x] **T3.7.1:** Sensory parametrów MPC ✅
   - **Priorytet:** Średni
-  - **Czas:** 2h
-  - **Zależności:** T3.3.1
+  - **Czas:** 2h → 1.5h (rzeczywisty)
+  - **Zależności:** T3.3.1 ✅
+  - **Status:** 19 testów w test_mpc_diagnostics.py (wszystkie przechodzą)
+  - **Implementacja:**
+    - Tracking _mpc_optimization_time w climate entity
+    - Export MPC params w extra_state_attributes (Np, Nc, weights, time)
+    - 4 nowe sensory diagnostyczne
+    - 19 comprehensive unit tests
   - **Kryteria akceptacji:**
-    - [ ] `sensor.adaptive_thermal_[pokój]_mpc_horizon_prediction` - Np
-    - [ ] `sensor.adaptive_thermal_[pokój]_mpc_horizon_control` - Nc
-    - [ ] `sensor.adaptive_thermal_[pokój]_mpc_weights` - [w_comfort, w_energy, w_smooth]
-    - [ ] `sensor.adaptive_thermal_[pokój]_mpc_optimization_time` - czas obliczeń [s]
+    - [x] `sensor.adaptive_thermal_[pokój]_mpc_horizon_prediction` - Np (steps + hours)
+    - [x] `sensor.adaptive_thermal_[pokój]_mpc_horizon_control` - Nc (steps + hours)
+    - [x] `sensor.adaptive_thermal_[pokój]_mpc_weights` - [w_comfort, w_energy, w_smooth] (formatted string + individual attributes)
+    - [x] `sensor.adaptive_thermal_[pokój]_mpc_optimization_time` - czas obliczeń [s] (seconds + milliseconds)
 
 - [ ] **T3.7.2:** Sensor predykcji temperatury
   - **Priorytet:** Niski

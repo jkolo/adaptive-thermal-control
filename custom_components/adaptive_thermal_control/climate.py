@@ -166,6 +166,9 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         # 144 samples = 24h at 10-minute intervals
         self._temperature_errors: deque = deque(maxlen=144)
 
+        # MPC diagnostics (T3.7.1)
+        self._mpc_optimization_time: float | None = None  # Last MPC computation time [s]
+
         # Initialize PI controller (fallback)
         self._pi_controller = PIController(
             kp=DEFAULT_KP,
@@ -223,6 +226,19 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         rmse = self.get_control_quality_rmse()
         if rmse is not None:
             attrs["control_quality_rmse"] = round(rmse, 3)
+
+        # Add MPC diagnostics (T3.7.1)
+        if self._mpc_config:
+            attrs["mpc_prediction_horizon"] = self._mpc_config.Np
+            attrs["mpc_control_horizon"] = self._mpc_config.Nc
+            attrs["mpc_weights"] = {
+                "comfort": round(self._mpc_config.w_comfort, 3),
+                "energy": round(self._mpc_config.w_energy, 3),
+                "smooth": round(self._mpc_config.w_smooth, 3),
+            }
+
+        if self._mpc_optimization_time is not None:
+            attrs["mpc_optimization_time"] = round(self._mpc_optimization_time, 4)
 
         return attrs
 
@@ -502,6 +518,7 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             )
 
             computation_time = time.time() - start_time
+            self._mpc_optimization_time = computation_time  # Store for diagnostics (T3.7.1)
 
             # Check if optimization succeeded
             if not result.success:

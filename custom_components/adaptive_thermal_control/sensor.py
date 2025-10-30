@@ -80,6 +80,20 @@ async def async_setup_entry(
             ControlQualitySensor(coordinator, climate_entity, room_id)
         )
 
+        # MPC diagnostic sensors (T3.7.1)
+        sensors.append(
+            MPCPredictionHorizonSensor(coordinator, climate_entity, room_id)
+        )
+        sensors.append(
+            MPCControlHorizonSensor(coordinator, climate_entity, room_id)
+        )
+        sensors.append(
+            MPCWeightsSensor(coordinator, climate_entity, room_id)
+        )
+        sensors.append(
+            MPCOptimizationTimeSensor(coordinator, climate_entity, room_id)
+        )
+
     async_add_entities(sensors)
 
     _LOGGER.info("Set up %d diagnostic sensors", len(sensors))
@@ -477,3 +491,199 @@ class ControlQualitySensor(ThermalModelSensorBase):
             return "mdi:alert-circle"
         else:
             return "mdi:help-circle"
+
+
+class MPCPredictionHorizonSensor(ThermalModelSensorBase):
+    """Sensor for MPC prediction horizon (T3.7.1)."""
+
+    _attr_icon = "mdi:timeline-clock"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: AdaptiveThermalCoordinator,
+        climate_entity: str,
+        room_id: str,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, climate_entity, room_id)
+
+        self._attr_name = f"{room_id} MPC Prediction Horizon"
+        self._attr_unique_id = f"{climate_entity}_mpc_prediction_horizon"
+        self._attr_native_unit_of_measurement = "steps"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the MPC prediction horizon (Np)."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return None
+
+        return climate_state.attributes.get("mpc_prediction_horizon")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return {}
+
+        Np = climate_state.attributes.get("mpc_prediction_horizon")
+        if Np is None:
+            return {}
+
+        # Assume dt=600s (10 minutes) from config
+        dt = 600  # seconds
+        hours = (Np * dt) / 3600
+
+        return {
+            "description": "Number of future timesteps predicted by MPC",
+            "horizon_hours": round(hours, 1),
+            "timestep_seconds": dt,
+        }
+
+
+class MPCControlHorizonSensor(ThermalModelSensorBase):
+    """Sensor for MPC control horizon (T3.7.1)."""
+
+    _attr_icon = "mdi:timeline-clock-outline"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: AdaptiveThermalCoordinator,
+        climate_entity: str,
+        room_id: str,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, climate_entity, room_id)
+
+        self._attr_name = f"{room_id} MPC Control Horizon"
+        self._attr_unique_id = f"{climate_entity}_mpc_control_horizon"
+        self._attr_native_unit_of_measurement = "steps"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the MPC control horizon (Nc)."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return None
+
+        return climate_state.attributes.get("mpc_control_horizon")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return {}
+
+        Nc = climate_state.attributes.get("mpc_control_horizon")
+        if Nc is None:
+            return {}
+
+        # Assume dt=600s (10 minutes) from config
+        dt = 600  # seconds
+        hours = (Nc * dt) / 3600
+
+        return {
+            "description": "Number of future control actions optimized by MPC",
+            "horizon_hours": round(hours, 1),
+            "timestep_seconds": dt,
+        }
+
+
+class MPCWeightsSensor(ThermalModelSensorBase):
+    """Sensor for MPC cost function weights (T3.7.1)."""
+
+    _attr_icon = "mdi:weight"
+
+    def __init__(
+        self,
+        coordinator: AdaptiveThermalCoordinator,
+        climate_entity: str,
+        room_id: str,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, climate_entity, room_id)
+
+        self._attr_name = f"{room_id} MPC Weights"
+        self._attr_unique_id = f"{climate_entity}_mpc_weights"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the weight configuration as a formatted string."""
+        weights = self._get_weights()
+        if not weights:
+            return None
+
+        # Format as "comfort: 0.70, energy: 0.20, smooth: 0.10"
+        return f"comfort: {weights['comfort']:.2f}, energy: {weights['energy']:.2f}, smooth: {weights['smooth']:.2f}"
+
+    def _get_weights(self) -> dict[str, float] | None:
+        """Get weights from climate entity."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return None
+
+        return climate_state.attributes.get("mpc_weights")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return weight values as separate attributes."""
+        weights = self._get_weights()
+        if not weights:
+            return {}
+
+        return {
+            "comfort_weight": weights.get("comfort"),
+            "energy_weight": weights.get("energy"),
+            "smooth_weight": weights.get("smooth"),
+            "description": "Cost function weights: comfort (tracking error), energy (consumption), smooth (control changes)",
+        }
+
+
+class MPCOptimizationTimeSensor(ThermalModelSensorBase):
+    """Sensor for MPC optimization computation time (T3.7.1)."""
+
+    _attr_icon = "mdi:timer-outline"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 4
+
+    def __init__(
+        self,
+        coordinator: AdaptiveThermalCoordinator,
+        climate_entity: str,
+        room_id: str,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, climate_entity, room_id)
+
+        self._attr_name = f"{room_id} MPC Optimization Time"
+        self._attr_unique_id = f"{climate_entity}_mpc_optimization_time"
+        self._attr_native_unit_of_measurement = "s"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the last MPC optimization time in seconds."""
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return None
+
+        return climate_state.attributes.get("mpc_optimization_time")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        opt_time = self.native_value
+        if opt_time is None:
+            return {}
+
+        # Convert to milliseconds for readability
+        ms = opt_time * 1000
+
+        return {
+            "milliseconds": round(ms, 2),
+            "description": "Time taken for last MPC optimization",
+            "target": "< 2000 ms (2 seconds)",
+        }
