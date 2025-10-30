@@ -213,15 +213,36 @@
     - [x] Logowanie decyzji regulatora (INFO level)
     - [x] Atrybut `controller_type: "PI"` w climate entity
 
-- [ ] **T1.4.3:** Testy PI controller
+- [x] **T1.4.3:** Testy PI controller
   - **Priorytet:** Średni
   - **Czas:** 2h
   - **Zależności:** T1.4.2
   - **Kryteria akceptacji:**
-    - [ ] Test odpowiedzi skokowej (step response)
-    - [ ] Test anti-windup (nasycenie)
-    - [ ] Test stabilności (brak oscylacji)
-    - [ ] Porównanie z expected behavior z literatury
+    - [x] Test odpowiedzi skokowej (step response)
+    - [x] Test anti-windup (nasycenie)
+    - [x] Test stabilności (brak oscylacji)
+    - [x] Porównanie z expected behavior z literatury
+  - **Implementacja:**
+    - Utworzono `tests/test_pi_controller.py` z 23 kompleksowymi testami
+    - Testy pokrywają:
+      - Inicjalizację kontrolera (default i custom parametry)
+      - Proporcjonalny term (P-only response)
+      - Step response (heating i cooling)
+      - Akumulację całki (integral accumulation)
+      - Redukcję błędu (error reduction)
+      - Saturację (upper i lower limits)
+      - Anti-windup mechanism (zatrzymanie integracji podczas saturacji)
+      - Anti-windup recovery (drenowanie całki przez negative error)
+      - Steady-state error elimination
+      - Stabilność (brak oscylacji z conservative tuning)
+      - Aktualizację parametrów (full i partial)
+      - Reset stanu kontrolera
+      - Custom dt per step
+      - Integral term limiting
+      - Expected PI response zgodny z teorią sterowania
+      - Realistic 24h floor heating scenario
+    - Wszystkie testy przechodzące (0.39s)
+    - Coverage: initialization, P/I terms, saturation, anti-windup, stability
 
 ---
 
