@@ -1,6 +1,6 @@
 # Faza 3: MPC Core (Miesiąc 3-4)
 
-**Status:** 🟡 W trakcie (42% - 16/38 zadań ukończonych)
+**Status:** 🟡 W trakcie (45% - 17/38 zadań ukończonych)
 
 **Cel:** Działający algorytm Model Predictive Control
 
@@ -118,16 +118,24 @@
     - [x] Atrybut climate entity: `controller_type: "MPC"` lub `"PI"`
     - [x] Logowanie: "Switched to MPC for climate.salon"
 
-- [ ] **T3.3.2:** Zapisywanie planu sterowania (opcjonalnie) - **CZĘŚCIOWO**
+- [x] **T3.3.2:** Zapisywanie planu sterowania (opcjonalnie) ✅
   - **Priorytet:** Niski
   - **Czas:** 2h
   - **Zależności:** T3.3.1
-  - **Status:** MPCResult zawiera u_sequence i predicted_temps, ale climate entity nie eksportuje ich jako atrybutów
+  - **Status:** Zaimplementowane i przetestowane (10 testów)
+  - **Implementacja:**
+    - Dodano pola `_control_plan` i `_predicted_temps` do AdaptiveThermalClimate
+    - Zapisywanie pełnej sekwencji u_optimal (Nc kroków) po każdej optymalizacji MPC
+    - Zapisywanie przewidywanej trajektorii temperatury (Np+1 kroków)
+    - Konwersja numpy array → list[float] z zaokrągleniem do 2 miejsc po przecinku
+    - Eksport jako atrybuty climate entity: `control_plan` i `predicted_temps`
+    - JSON serializable (gotowe dla Home Assistant UI)
   - **Kryteria akceptacji:**
-    - [x] Zapisuj całą sekwencję u_optimal (nie tylko pierwszy krok) - w MPCResult
-    - [ ] Atrybut climate entity: `control_plan: [u(0), u(1), ..., u(Nc-1)]` - NIE ZAIMPLEMENTOWANE
-    - [ ] Umożliwia użytkownikowi zobaczenie "co MPC planuje zrobić"
-    - [ ] Sensor diagnostyczny: `sensor.adaptive_thermal_[pokój]_control_plan` - DO ZROBIENIA W T3.7
+    - [x] Zapisuj całą sekwencję u_optimal (nie tylko pierwszy krok)
+    - [x] Atrybut climate entity: `control_plan: [u(0), u(1), ..., u(Nc-1)]`
+    - [x] Atrybut climate entity: `predicted_temps: [T(0), T(1), ..., T(Np)]`
+    - [x] Umożliwia użytkownikowi zobaczenie "co MPC planuje zrobić"
+    - [ ] Sensor diagnostyczny: `sensor.adaptive_thermal_[pokój]_control_plan` - DO ZROBIENIA W T3.7.2
 
 ---
 

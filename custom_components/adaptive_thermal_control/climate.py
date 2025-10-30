@@ -169,6 +169,10 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         # MPC diagnostics (T3.7.1)
         self._mpc_optimization_time: float | None = None  # Last MPC computation time [s]
 
+        # MPC control plan (T3.3.2)
+        self._control_plan: list[float] | None = None  # Planned control sequence [0-100%]
+        self._predicted_temps: list[float] | None = None  # Predicted temperature trajectory [°C]
+
         # Initialize PI controller (fallback)
         self._pi_controller = PIController(
             kp=DEFAULT_KP,
@@ -239,6 +243,13 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
 
         if self._mpc_optimization_time is not None:
             attrs["mpc_optimization_time"] = round(self._mpc_optimization_time, 4)
+
+        # Add MPC control plan and predictions (T3.3.2)
+        if self._control_plan is not None:
+            attrs["control_plan"] = self._control_plan
+
+        if self._predicted_temps is not None:
+            attrs["predicted_temps"] = self._predicted_temps
 
         return attrs
 
@@ -573,6 +584,14 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
 
             await self._set_valve_position(valve_position)
             self._last_control_output = valve_position
+
+            # Store control plan and predictions (T3.3.2)
+            # Convert numpy arrays to lists for JSON serialization
+            self._control_plan = [round(float(u), 2) for u in result.u_optimal]
+            if result.predicted_temps is not None:
+                self._predicted_temps = [round(float(t), 2) for t in result.predicted_temps]
+            else:
+                self._predicted_temps = None
 
         except asyncio.TimeoutError:
             await self._handle_mpc_failure(f"Timeout (>{MPC_TIMEOUT}s)")
