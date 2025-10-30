@@ -232,15 +232,21 @@
     - `custom_components/adaptive_thermal_control/climate.py` - logika failsafe
     - `tests/test_failsafe.py` - 9 testów (100% pass)
 
-- [ ] **T3.6.2:** Monitoring jakości sterowania
+- [x] **T3.6.2:** Monitoring jakości sterowania ✅
   - **Priorytet:** Średni
   - **Czas:** 2h
   - **Zależności:** T3.6.1 ✅
+  - **Status:** 9 testów w test_control_quality.py (wszystkie przechodzą)
+  - **Implementacja:**
+    - Temperature error tracking w climate entity (deque z maxlen=144)
+    - Metoda get_control_quality_rmse() z rolling window
+    - ControlQualitySensor w sensor.py
+    - RMSE eksportowane w extra_state_attributes climate entity
   - **Kryteria akceptacji:**
-    - [ ] Obliczaj rolling RMSE z ostatnich 24h
-    - [ ] Jeśli RMSE > 2.0°C → ostrzeżenie
-    - [ ] Sensor: `sensor.adaptive_thermal_[pokój]_control_quality`
-    - [ ] Stany: "excellent" (<0.5°C), "good" (<1°C), "poor" (>1°C)
+    - [x] Obliczaj rolling RMSE z ostatnich 24h
+    - [x] Jeśli RMSE > 2.0°C → status "poor" (warning)
+    - [x] Sensor: `sensor.adaptive_thermal_[pokój]_control_quality`
+    - [x] Stany: "excellent" (<0.5°C), "good" (<1°C), "fair" (<2°C), "poor" (>=2°C), "unknown"
 
 ---
 

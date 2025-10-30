@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections import deque
 from typing import Any
 
 from homeassistant.components.climate import (
@@ -160,6 +161,11 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         self._mpc_last_failure_time: float | None = None  # Unix timestamp
         self._mpc_permanently_disabled: bool = False
 
+        # Control quality tracking (T3.6.2)
+        # Store (timestamp, error) tuples for last 24h
+        # 144 samples = 24h at 10-minute intervals
+        self._temperature_errors: deque = deque(maxlen=144)
+
         # Initialize PI controller (fallback)
         self._pi_controller = PIController(
             kp=DEFAULT_KP,
@@ -204,7 +210,7 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         Returns:
             Dictionary of extra attributes
         """
-        return {
+        attrs = {
             ATTR_VALVE_POSITION: self._valve_position,
             ATTR_HEATING_DEMAND: self._heating_demand,
             ATTR_CONTROLLER_TYPE: self._controller_type,
@@ -212,6 +218,13 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             ATTR_MPC_FAILURE_COUNT: self._mpc_failure_count,
             ATTR_MPC_LAST_FAILURE_REASON: self._mpc_last_failure_reason,
         }
+
+        # Add control quality RMSE (T3.6.2)
+        rmse = self.get_control_quality_rmse()
+        if rmse is not None:
+            attrs["control_quality_rmse"] = round(rmse, 3)
+
+        return attrs
 
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator.
@@ -388,6 +401,11 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
                 old_controller_type,
                 self._controller_type,
             )
+
+        # Track temperature error for control quality monitoring (T3.6.2)
+        if self._attr_target_temperature is not None and self._attr_current_temperature is not None:
+            error = self._attr_target_temperature - self._attr_current_temperature
+            self._temperature_errors.append((time.time(), error))
 
     async def _async_control_with_pi(self) -> None:
         """Control heating using PI controller (fallback).
@@ -680,3 +698,35 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             _LOGGER.error(
                 "Failed to set valve %s for %s: %s", entity_id, self._attr_name, err
             )
+
+    def get_control_quality_rmse(self, time_window_hours: float = 24.0) -> float | None:
+        """Calculate rolling RMSE for control quality monitoring (T3.6.2).
+
+        Args:
+            time_window_hours: Time window in hours (default: 24h)
+
+        Returns:
+            RMSE in °C, or None if insufficient data
+        """
+        if not self._temperature_errors:
+            return None
+
+        current_time = time.time()
+        cutoff_time = current_time - (time_window_hours * 3600)
+
+        # Filter errors within time window
+        recent_errors = [
+            error for timestamp, error in self._temperature_errors
+            if timestamp >= cutoff_time
+        ]
+
+        if len(recent_errors) < 6:  # Need at least 1 hour of data
+            return None
+
+        # Calculate RMSE
+        import math
+        squared_errors = [e ** 2 for e in recent_errors]
+        mse = sum(squared_errors) / len(squared_errors)
+        rmse = math.sqrt(mse)
+
+        return rmse

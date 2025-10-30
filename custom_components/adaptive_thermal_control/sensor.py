@@ -75,6 +75,11 @@ async def async_setup_entry(
             ModelStatusSensor(coordinator, climate_entity, room_id)
         )
 
+        # Control quality sensor (T3.6.2)
+        sensors.append(
+            ControlQualitySensor(coordinator, climate_entity, room_id)
+        )
+
     async_add_entities(sensors)
 
     _LOGGER.info("Set up %d diagnostic sensors", len(sensors))
@@ -381,3 +386,94 @@ class ModelStatusSensor(ThermalModelSensorBase):
             return "mdi:alert-circle"
 
         return "mdi:help-circle"
+
+
+class ControlQualitySensor(ThermalModelSensorBase):
+    """Sensor for control quality monitoring (T3.6.2).
+
+    Monitors rolling 24h RMSE and reports quality status:
+    - excellent: RMSE < 0.5°C
+    - good: RMSE < 1.0°C
+    - poor: RMSE >= 1.0°C
+    """
+
+    _attr_icon = "mdi:chart-line-variant"
+
+    def __init__(
+        self,
+        coordinator: AdaptiveThermalCoordinator,
+        climate_entity: str,
+        room_id: str,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, climate_entity, room_id)
+
+        self._attr_name = f"{room_id} Control Quality"
+        self._attr_unique_id = f"{climate_entity}_control_quality"
+
+    @property
+    def native_value(self) -> str:
+        """Return the control quality status.
+
+        States:
+        - excellent: RMSE < 0.5°C (target achieved)
+        - good: RMSE < 1.0°C (acceptable performance)
+        - fair: RMSE < 2.0°C (degraded but functional)
+        - poor: RMSE >= 2.0°C (significant deviation)
+        - unknown: Not enough data (< 1 hour)
+        """
+        rmse = self._get_rmse()
+
+        if rmse is None:
+            return "unknown"
+        elif rmse < 0.5:
+            return "excellent"
+        elif rmse < 1.0:
+            return "good"
+        elif rmse < 2.0:
+            return "fair"
+        else:
+            return "poor"
+
+    def _get_rmse(self) -> float | None:
+        """Get RMSE from climate entity state attributes."""
+        # Get climate entity state
+        climate_state = self.hass.states.get(self._climate_entity)
+        if not climate_state:
+            return None
+
+        # Get RMSE from attributes
+        return climate_state.attributes.get("control_quality_rmse")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        rmse = self._get_rmse()
+
+        attrs = {}
+        if rmse is not None:
+            attrs["rmse"] = round(rmse, 3)
+            attrs["unit"] = "°C"
+
+            # Add quality thresholds for reference
+            attrs["threshold_excellent"] = 0.5
+            attrs["threshold_good"] = 1.0
+            attrs["threshold_fair"] = 2.0
+
+        return attrs
+
+    @property
+    def icon(self) -> str:
+        """Return icon based on quality."""
+        quality = self.native_value
+
+        if quality == "excellent":
+            return "mdi:check-circle"
+        elif quality == "good":
+            return "mdi:check"
+        elif quality == "fair":
+            return "mdi:alert"
+        elif quality == "poor":
+            return "mdi:alert-circle"
+        else:
+            return "mdi:help-circle"
