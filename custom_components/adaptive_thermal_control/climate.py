@@ -697,13 +697,39 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
                     blocking=True,
                 )
             elif domain == "valve":
-                # Valve entity - set position
-                await self.hass.services.async_call(
-                    "valve",
-                    "set_valve_position",
-                    {"entity_id": entity_id, "position": position},
-                    blocking=True,
-                )
+                # Valve entity - check if it supports set_position
+                state = self.hass.states.get(entity_id)
+                if state is None:
+                    _LOGGER.warning("Valve entity %s not found", entity_id)
+                    return
+
+                # Check supported features
+                supported_features = state.attributes.get("supported_features", 0)
+                # ValveEntityFeature.SET_POSITION = 4
+                supports_set_position = (supported_features & 4) != 0
+
+                if supports_set_position:
+                    # Valve supports set_position
+                    await self.hass.services.async_call(
+                        "valve",
+                        "set_valve_position",
+                        {"entity_id": entity_id, "position": position},
+                        blocking=True,
+                    )
+                else:
+                    # Valve only supports open/close - use simple on/off control
+                    # Position > 50% = open, <= 50% = close
+                    service = "open_valve" if position > 50.0 else "close_valve"
+                    await self.hass.services.async_call(
+                        "valve",
+                        service,
+                        {"entity_id": entity_id},
+                        blocking=True,
+                    )
+                    _LOGGER.debug(
+                        "Valve %s does not support set_position, using %s instead",
+                        entity_id, service
+                    )
             else:
                 _LOGGER.warning("Unsupported valve domain: %s", domain)
 
