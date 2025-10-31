@@ -109,9 +109,9 @@ class PWMController:
             raise ValueError(f"Duty cycle must be 0-100%, got {duty_cycle}")
 
         domain = valve_entity.split(".")[0]
-        if domain != "switch":
+        if domain not in ("switch", "valve"):
             raise ValueError(
-                f"PWM controller only supports switch entities, got {domain}"
+                f"PWM controller only supports switch and valve entities, got {domain}"
             )
 
         _LOGGER.debug(

@@ -28,7 +28,7 @@ tune_mpc_parameters:
 
     days:
       name: Days of Historical Data
-      description: Number of days of historical data to use for tuning (default: 30)
+      description: "Number of days of historical data to use for tuning (default: 30)"
       required: false
       default: 30
       example: 30

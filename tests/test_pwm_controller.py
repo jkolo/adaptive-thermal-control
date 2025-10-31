@@ -203,12 +203,40 @@ async def test_pwm_invalid_duty_cycle():
 
 @pytest.mark.asyncio
 async def test_pwm_invalid_entity_domain():
-    """Test that non-switch entity raises ValueError."""
+    """Test that non-switch/valve entity raises ValueError."""
     hass_mock = MagicMock()
     pwm = PWMController(hass_mock, period=1800.0)
 
-    with pytest.raises(ValueError, match="PWM controller only supports switch entities"):
+    with pytest.raises(ValueError, match="PWM controller only supports switch and valve entities"):
         await pwm.set_duty_cycle("number.test_valve", 50.0)
+
+
+@pytest.mark.asyncio
+async def test_pwm_accepts_valve_entities(hass_mock):
+    """Test that valve.* entities are accepted by PWM controller."""
+    pwm = PWMController(hass_mock, period=1800.0)
+
+    with patch(
+        "custom_components.adaptive_thermal_control.pwm_controller.async_track_point_in_time"
+    ) as mock_track:
+        mock_track.return_value = MagicMock()
+
+        # Should NOT raise ValueError for valve.* entities
+        await pwm.set_duty_cycle("valve.test_valve", 65.0)
+
+        # Verify it was called (valve ON immediately)
+        assert hass_mock.services.async_call.call_count == 1
+        hass_mock.services.async_call.assert_called_with(
+            "switch",
+            "turn_on",
+            {"entity_id": "valve.test_valve"},
+            blocking=True,
+        )
+
+        # Verify schedule created
+        assert "valve.test_valve" in pwm._schedules
+        schedule = pwm._schedules["valve.test_valve"]
+        assert schedule["duty"] == 65.0
 
 
 @pytest.mark.asyncio

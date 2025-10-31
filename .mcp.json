@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "homeassistant": {
+      "type": "sse",
+      "url": "https://ha.jkolo.pl/mcp_server/sse",
+      "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhZGY3ZjJjYjUwZWQ0NDNhYmQ3MzU4ZDM5ODFjNDU4MCIsImlhdCI6MTc1OTMyMzAxOSwiZXhwIjoyMDc0NjgzMDE5fQ.kkawwQ4_wE0MwAHvnQHH1kQs-yvMtKX28s1KK9baCuM"
+      }
+    }
+  }
+}
