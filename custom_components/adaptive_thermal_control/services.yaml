@@ -40,7 +40,7 @@ tune_mpc_parameters:
 
     save_results:
       name: Save Results
-      description: Whether to save tuned parameters for future use (default: true)
+      description: "Whether to save tuned parameters for future use (default: true)"
       required: false
       default: true
       selector:
