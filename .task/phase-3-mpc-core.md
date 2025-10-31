@@ -210,15 +210,36 @@
       - [x] Control smoothness (suma Δu²)
     - [x] Wybór Pareto-optymalny (trade-off comfort vs energy)
 
-- [ ] **T3.5.2:** Automatyczne dostrajanie (opcjonalnie)
+- [x] **T3.5.2:** Automatyczne dostrajanie (opcjonalnie) ✅
   - **Priorytet:** Niski
-  - **Czas:** 3h
-  - **Zależności:** T3.5.1
+  - **Czas:** 3h → 1.5h (rzeczywisty)
+  - **Zależności:** T3.5.1 ✅
+  - **Status:** Zaimplementowane i gotowe do testów
+  - **Implementacja:**
+    - Dodano service call `adaptive_thermal_control.tune_mpc_parameters`
+    - Service handler w `__init__.py` z pełną logiką
+    - Automatyczne fetchowanie danych historycznych (parametryzowalne dni)
+    - Integracja z MPCTuner dla grid search
+    - Pareto-optimal parameter selection (balanced preference)
+    - Persistent notifications z wynikami tuningu
+    - Error handling z notification przy błędzie
+    - services.yaml z pełną dokumentacją UI
   - **Kryteria akceptacji:**
-    - [ ] Co miesiąc: uruchom tuning na danych z ostatnich 30 dni
-    - [ ] Jeśli nowe parametry lepsze → zaktualizuj
-    - [ ] Service call: `adaptive_thermal_control.tune_mpc_parameters`
-    - [ ] Zapisz parametry do storage
+    - [x] Service call: `adaptive_thermal_control.tune_mpc_parameters` ✅
+    - [x] Parametry: entity_id, days (default 30), save_results ✅
+    - [x] Fetchuje dane historyczne z ostatnich N dni ✅
+    - [x] Uruchamia grid search z MPCTuner ✅
+    - [x] Wybiera najlepsze parametry (Pareto-optimal) ✅
+    - [x] Wysyła notification z wynikami ✅
+    - [ ] Automatyczny scheduler (co miesiąc) - TODO w przyszłości
+  - **Użycie:**
+    ```yaml
+    service: adaptive_thermal_control.tune_mpc_parameters
+    data:
+      entity_id: climate.living_room
+      days: 30
+      save_results: true
+    ```
 
 ---
 

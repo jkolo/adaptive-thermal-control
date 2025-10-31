@@ -12,7 +12,7 @@
 | **Postęp ogólny** | **Gotowe do testowania w prawdziwym HA** |
 | **Czas do v1.0** | Wymaga testów w prawdziwym HA (7-14 dni) |
 | **Ukończone fazy** | Faza 1 (91%), Faza 2 (71% kluczowe 100%), Faza 3 (wszystkie możliwe) |
-| **Ukończone zadania** | 59/197 (30%) - ale ~85% zadań możliwych bez prawdziwego HA |
+| **Ukończone zadania** | 60/197 (30%) - ale ~85% zadań możliwych bez prawdziwego HA |
 | **Znane bugi** | 0 |
 
 ---
@@ -23,12 +23,12 @@
 |------|--------|--------|-------|-----------|
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ **Praktycznie ukończona** | 91% (22/24) | 2 zadania wymagają instalacji w HA | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ **Ukończona** | 71% (15/21) | Kluczowe 100%, reszta opcjonalna | WYSOKI |
-| [Faza 3: MPC Core](./phase-3-mpc-core.md) | ✅ **Praktycznie ukończona** | 47% (18/38) | Wszystkie możliwe zadania ukończone. Pozostałe: testy w HA (7 dni) + opcjonalne | **WYSOKI** |
+| [Faza 3: MPC Core](./phase-3-mpc-core.md) | ✅ **Praktycznie ukończona** | 50% (19/38) | Wszystkie możliwe zadania ukończone! Pozostałe: tylko testy w HA (7 dni) | **WYSOKI** |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | ⏸️ Wstrzymana | 0% (0/29) | Czeka na testy w prawdziwym HA z Faz 1-3 | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | ⏸️ Wstrzymana | 0% (0/27) | Czeka na Fazę 4 | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | ⏸️ Wstrzymana | 0% (0/26) | Czeka na wszystkie poprzednie fazy | Niski |
 
-**Łącznie:** 197 zadań (59 ukończone formalne, ~120 ukończone praktyczne)
+**Łącznie:** 197 zadań (60 ukończone formalne, ~120 ukończone praktyczne)
 
 **🎯 KLUCZOWY MILESTONE:** Projekt gotowy do pierwszych testów w prawdziwym Home Assistant!
 
@@ -75,7 +75,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
    - [ ] Fix bugs jeśli wystąpią
 
 **2. 🟡 Opcjonalne ulepszenia (można zrobić równolegle)**
-   - [ ] T3.5.2: Automatyczne dostrajanie MPC (service call)
+   - [x] T3.5.2: Automatyczne dostrajanie MPC (service call) ✅
    - [ ] T1.8.3: Rozszerz dokumentację README o przykłady instalacji
    - [ ] Dodatkowe sensory diagnostyczne według potrzeb
 
@@ -142,6 +142,12 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
      - Full trajectory as forecast attribute
      - Horizon information (minutes, hours)
      - 15 unit tests (100% pass)
+   - [x] Automatic MPC tuning service (T3.5.2) ✅
+     - Service call: `adaptive_thermal_control.tune_mpc_parameters`
+     - Automatic historical data fetching (configurable days)
+     - Grid search with MPCTuner integration
+     - Pareto-optimal parameter selection
+     - User notifications with results
 
 ### Quick wins (łatwe zadania na początek):
 
@@ -338,6 +344,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-31 | Temperature prediction sensor - forecast visualization | Faza 3 (47%, ✅) |
 | 2025-10-31 | Config flow tests - 13 comprehensive tests for UI configuration | Faza 1 (87%, ✅) |
 | 2025-10-31 | PI controller tests - 23 tests covering step response, anti-windup, stability | Faza 1 (91%, ✅) |
+| 2025-10-31 | Automatic MPC tuning service - tune_mpc_parameters service call | Faza 3 (50%, ✅) |
 
 ---
 

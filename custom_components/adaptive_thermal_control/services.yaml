@@ -1,0 +1,47 @@
+# Services for Adaptive Thermal Control integration
+
+tune_mpc_parameters:
+  name: Tune MPC Parameters
+  description: >
+    Automatically tune MPC controller parameters (weights) for a climate entity
+    by analyzing historical data and finding optimal trade-off between comfort,
+    energy consumption, and control smoothness.
+
+    This service:
+    - Fetches historical data (default: last 30 days)
+    - Runs grid search with multiple weight combinations
+    - Uses Pareto optimization to find best parameters
+    - Sends notification with tuning results
+    - Optionally saves parameters for future use
+
+    Note: This operation may take several minutes depending on data size.
+  fields:
+    entity_id:
+      name: Climate Entity
+      description: The climate entity to tune MPC parameters for
+      required: true
+      example: "climate.living_room"
+      selector:
+        entity:
+          domain: climate
+          integration: adaptive_thermal_control
+
+    days:
+      name: Days of Historical Data
+      description: Number of days of historical data to use for tuning (default: 30)
+      required: false
+      default: 30
+      example: 30
+      selector:
+        number:
+          min: 7
+          max: 90
+          unit_of_measurement: "days"
+
+    save_results:
+      name: Save Results
+      description: Whether to save tuned parameters for future use (default: true)
+      required: false
+      default: true
+      selector:
+        boolean:
