@@ -355,16 +355,28 @@
     - [ ] Zawory są sterowalne
     - [ ] Brak błędów w logach HA
 
-- [ ] **T1.8.3:** Dokumentacja README.md (wersja podstawowa)
+- [x] **T1.8.3:** Dokumentacja README.md (wersja podstawowa)
   - **Priorytet:** Średni
-  - **Czas:** 2h
-  - **Zależności:** T1.8.2
+  - **Czas:** 2h → 1.5h (actual)
+  - **Zależności:** T1.8.2 (relaxed - docs can be written before real testing)
   - **Kryteria akceptacji:**
-    - [ ] Opis projektu
-    - [ ] Wymagania (HA wersja, hardware)
-    - [ ] Instrukcja instalacji (manual)
-    - [ ] Podstawowa konfiguracja
-    - [ ] Known issues
+    - [x] Opis projektu ✅ (already comprehensive)
+    - [x] Wymagania (HA wersja, hardware) ✅ (already present)
+    - [x] Instrukcja instalacji (manual) ✅ (HACS + Manual methods)
+    - [x] Podstawowa konfiguracja ✅ (detailed examples)
+    - [x] Known issues ✅ (added - 64 lines, 6 major issues documented)
+  - **Implementacja:**
+    - Added **Known Issues** section (lines 826-888):
+      - Pre-production warning
+      - 6 known limitations documented
+      - Reporting issues guide
+    - Added **Troubleshooting** section (lines 889-1067):
+      - 7 common problem categories
+      - Step-by-step solutions for each
+      - Debug logging instructions
+      - Community support links
+    - Total addition: 243 lines
+    - README now complete for v1.0
 
 ---
 

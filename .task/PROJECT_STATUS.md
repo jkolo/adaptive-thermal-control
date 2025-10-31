@@ -21,14 +21,14 @@
 
 | Faza | Status | Postęp | Uwagi | Priorytet |
 |------|--------|--------|-------|-----------|
-| [Faza 1: Fundament](./phase-1-foundation.md) | ✅ **Praktycznie ukończona** | 91% (22/24) | 2 zadania wymagają instalacji w HA | WYSOKI |
+| [Faza 1: Fundament](./phase-1-foundation.md) | ✅ **Praktycznie ukończona** | 96% (23/24) | 1 zadanie wymaga instalacji w HA (T1.8.2) | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ **Ukończona** | 71% (15/21) | Kluczowe 100%, reszta opcjonalna | WYSOKI |
 | [Faza 3: MPC Core](./phase-3-mpc-core.md) | ✅ **Praktycznie ukończona** | 50% (19/38) | Wszystkie możliwe zadania ukończone! Pozostałe: tylko testy w HA (7 dni) | **WYSOKI** |
 | [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | ⏸️ Wstrzymana | 0% (0/29) | Czeka na testy w prawdziwym HA z Faz 1-3 | Średni |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | ⏸️ Wstrzymana | 0% (0/27) | Czeka na Fazę 4 | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | ⏸️ Wstrzymana | 0% (0/26) | Czeka na wszystkie poprzednie fazy | Niski |
 
-**Łącznie:** 197 zadań (60 ukończone formalne, ~120 ukończone praktyczne)
+**Łącznie:** 197 zadań (61 ukończone formalne, ~121 ukończone praktyczne)
 
 **🎯 KLUCZOWY MILESTONE:** Projekt gotowy do pierwszych testów w prawdziwym Home Assistant!
 
@@ -39,9 +39,9 @@
 ## 📅 Timeline
 
 ```
-Miesiąc 1: [█████████████████████████████] Faza 1 (91% ✅)
+Miesiąc 1: [█████████████████████████████] Faza 1 (96% ✅)
 Miesiąc 2: [████████████████████████░░░░] Faza 2 (71% ✅ kluczowe ukończone)
-Miesiąc 3: [█████████████░░░░░░░░░░░░░░░] Faza 3 (47% - MPC + tuning + diagnostics + docs + predictions)
+Miesiąc 3: [█████████████░░░░░░░░░░░░░░░] Faza 3 (50% - MPC + tuning + diagnostics + docs + predictions)
                    ▲ Tu jesteśmy
 Miesiąc 4: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 3 (cont. - testing + documentation)
 Miesiąc 5: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] Faza 4
@@ -76,7 +76,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 **2. 🟡 Opcjonalne ulepszenia (można zrobić równolegle)**
    - [x] T3.5.2: Automatyczne dostrajanie MPC (service call) ✅
-   - [ ] T1.8.3: Rozszerz dokumentację README o przykłady instalacji
+   - [x] T1.8.3: Rozszerz dokumentację README o Known Issues i Troubleshooting ✅
    - [ ] Dodatkowe sensory diagnostyczne według potrzeb
 
 **3. 🟢 Po testach w HA: Faza 4-6**
@@ -87,7 +87,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 ### ✅ Co zostało ukończone:
 
-**Faza 1: Fundament (91%)**
+**Faza 1: Fundament (96%)**
    - [x] MPC controller implementation (T3.1.1-T3.1.5) ✅
    - [x] ForecastProvider for weather data (T3.2.1) ✅
    - [x] Integration with coordinator and climate (T3.3.1) ✅
@@ -148,6 +148,20 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
      - Grid search with MPCTuner integration
      - Pareto-optimal parameter selection
      - User notifications with results
+   - [x] README documentation (T1.8.3) ✅
+     - Added Known Issues section (64 lines)
+       - Pre-production status warning
+       - 6 known limitations documented
+       - Issue reporting guide with context requirements
+     - Added Troubleshooting section (179 lines)
+       - 7 common problem categories with solutions
+       - Integration won't load, climate entity not updating
+       - MPC not activating, high temperature error
+       - Valve oscillation, performance issues, data collection
+       - Debug logging instructions
+       - Community support links
+     - Total: 243 lines added to README
+     - README now complete for v1.0 users
 
 ### Quick wins (łatwe zadania na początek):
 
@@ -345,6 +359,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-31 | Config flow tests - 13 comprehensive tests for UI configuration | Faza 1 (87%, ✅) |
 | 2025-10-31 | PI controller tests - 23 tests covering step response, anti-windup, stability | Faza 1 (91%, ✅) |
 | 2025-10-31 | Automatic MPC tuning service - tune_mpc_parameters service call | Faza 3 (50%, ✅) |
+| 2025-10-31 | README documentation - Known Issues (64 lines) + Troubleshooting (179 lines) | Faza 1 (96%, ✅) |
 
 ---
 

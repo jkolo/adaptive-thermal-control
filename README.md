@@ -823,6 +823,249 @@ Contributions welcome after v1.0 release. Currently in active development.
 - **Q3 2025**: Phases 4-5 (Advanced Features + Cost)
 - **Q4 2025**: Phase 6 (HACS + v1.0)
 
+## Known Issues
+
+### Current Limitations
+
+> **⚠️ Pre-Production Status**: This integration is in active development (Phase 3). Real-world testing in Home Assistant is pending. Use at your own risk.
+
+**Known Issues:**
+
+1. **No Real Home Assistant Testing Yet**
+   - All algorithms tested with unit tests and synthetic data
+   - Real HA deployment and 7-14 day testing required (T3.8.3)
+   - Expect bugs and edge cases in production
+
+2. **MPC Requires Historical Data**
+   - MPC controller needs trained thermal model
+   - Minimum **3-7 days of data** for reliable model training
+   - Falls back to PI controller during initial period
+   - Use service `adaptive_thermal_control.tune_mpc_parameters` after data collection
+
+3. **RLS Test Instability** (Development Issue)
+   - 4 RLS integration tests unstable on synthetic data
+   - Real data expected to be more stable
+   - Does not affect production code, only test suite
+
+4. **Limited Error Recovery**
+   - MPC failsafe mechanism implemented but untested in production
+   - Manual intervention may be needed for edge cases
+   - Monitor logs during initial deployment
+
+5. **Performance on Low-End Hardware**
+   - Tested on development machine only
+   - Raspberry Pi 3 or lower may struggle with MPC optimization
+   - Minimum: Raspberry Pi 4 (4GB RAM)
+
+6. **Missing Features** (Planned for Phase 4-6)
+   - No weather forecast integration yet
+   - No solar irradiance support
+   - No inter-room thermal coupling
+   - No cost optimization (energy pricing)
+
+### Reporting Issues
+
+If you encounter problems:
+
+1. **Check Logs**: Enable debug logging in `configuration.yaml`:
+   ```yaml
+   logger:
+     default: warning
+     logs:
+       custom_components.adaptive_thermal_control: debug
+   ```
+
+2. **Report on GitLab**: [GitLab Issues](https://gitlab.com/YOUR_USERNAME/adaptive-thermal-control/-/issues)
+   - Include HA version, hardware specs
+   - Attach relevant log snippets
+   - Describe expected vs actual behavior
+
+3. **Provide Context**:
+   - How many rooms/zones?
+   - Valve types (number, switch, valve)?
+   - MPC or PI controller mode?
+   - Training data availability?
+
+## Troubleshooting
+
+### Integration Won't Load
+
+**Symptom**: Integration doesn't appear in UI or fails to load
+
+**Solutions**:
+1. Check Home Assistant version (2024.1.0+ required)
+2. Verify Python version (3.13+ required)
+3. Check dependencies installed:
+   ```bash
+   pip show numpy scipy
+   ```
+4. Check logs for import errors:
+   ```bash
+   grep "adaptive_thermal_control" /config/home-assistant.log
+   ```
+5. Restart Home Assistant after installation
+
+### Climate Entity Not Updating
+
+**Symptom**: Temperature or valve position not updating
+
+**Solutions**:
+1. **Check sensor availability**:
+   - Verify `room_temp_entity` exists and updates
+   - Verify `valve_entity` is controllable
+   - Check entity state in Developer Tools
+
+2. **Check update interval**:
+   - Default: 10 minutes (600s)
+   - Wait at least 10 minutes after setup
+   - Check coordinator logs: `grep "coordinator" home-assistant.log`
+
+3. **Check valve type**:
+   - `number.*` entities: should show 0-100 value
+   - `switch.*` entities: should be ON/OFF
+   - `valve.*` entities: should have `position` attribute
+
+### MPC Not Activating
+
+**Symptom**: Controller stuck in PI mode, never switches to MPC
+
+**Solutions**:
+1. **Insufficient training data**:
+   - Check `sensor.[room]_thermal_model_training_samples` > 100
+   - Wait 3-7 days for sufficient data collection
+   - Check `sensor.[room]_thermal_model_validation_rmse` < 2.0°C
+
+2. **Model not trained**:
+   - Manual trigger: `adaptive_thermal_control.train_thermal_model`
+   - Check logs for training errors
+   - Verify historical data availability in HA recorder
+
+3. **MPC disabled by failsafe**:
+   - Check `sensor.[room]_controller_mode` attribute `failure_count`
+   - If > 3: MPC failed too many times, switched to PI permanently
+   - Reset by restarting integration
+
+4. **Forecast provider missing**:
+   - Check outdoor temperature sensor exists
+   - Verify outdoor temp data available in history
+   - MPC requires outdoor temp for predictions
+
+### High Temperature Error (RMSE)
+
+**Symptom**: `sensor.[room]_control_quality` shows "poor" or "fair"
+
+**Solutions**:
+1. **Tune MPC parameters**:
+   ```yaml
+   service: adaptive_thermal_control.tune_mpc_parameters
+   data:
+     entity_id: climate.living_room
+     days: 30
+     save_results: true
+   ```
+
+2. **Check thermal model quality**:
+   - `sensor.[room]_thermal_model_validation_rmse` should be < 2.0°C
+   - If higher: retrain model or collect more data
+
+3. **Adjust PI parameters** (if using PI controller):
+   - Increase `Kp` for faster response
+   - Decrease `Ti` for stronger integral action
+   - Check for valve saturation (0% or 100% stuck)
+
+4. **Check for disturbances**:
+   - Open windows/doors affecting temperature
+   - Other heat sources (sunlight, appliances)
+   - Thermostat placement (avoid drafts, direct sun)
+
+### Valve Oscillation (Chattering)
+
+**Symptom**: Valve position changes frequently (every cycle)
+
+**Solutions**:
+1. **For MPC**: Increase smoothness weight
+   ```yaml
+   # In MPC tuning
+   w_smooth: 0.15  # Higher value = smoother control
+   ```
+
+2. **For PI**: Decrease proportional gain
+   ```python
+   # In PI tuning
+   Kp: 30.0  # Lower value = less aggressive
+   ```
+
+3. **Check deadband**: Some valves need minimum position change
+   - Add hysteresis in valve automation
+   - Filter small position changes
+
+### Performance Issues
+
+**Symptom**: Slow optimization, delayed updates
+
+**Solutions**:
+1. **Check hardware**:
+   - Raspberry Pi 4+ with 4GB+ RAM recommended
+   - Monitor CPU/memory: `top` or HA System Monitor
+
+2. **Reduce number of zones**:
+   - Start with 1-2 rooms for testing
+   - Add more zones gradually
+
+3. **Adjust MPC horizons**:
+   - Reduce `Np` (prediction horizon): 24 → 18 steps
+   - Reduce `Nc` (control horizon): 12 → 8 steps
+   - Trade-off: faster but less optimal
+
+4. **Check for blocking operations**:
+   - Enable debug logging and check for slow functions
+   - Report performance issues on GitLab
+
+### Data Collection Issues
+
+**Symptom**: Not enough historical data for training
+
+**Solutions**:
+1. **Check HA Recorder**:
+   ```yaml
+   # configuration.yaml
+   recorder:
+     purge_keep_days: 30  # Keep at least 30 days
+   ```
+
+2. **Verify entity recording**:
+   - Temperature sensors should be recorded
+   - Check Developer Tools → History for data
+
+3. **Wait patiently**:
+   - Minimum 3-7 days for initial training
+   - More data = better model (aim for 14-30 days)
+
+4. **Use manual data import** (if available):
+   - Export old data from previous system
+   - Import via HA Developer Tools → Statistics
+
+### Still Having Issues?
+
+1. **Enable debug logging**:
+   ```yaml
+   logger:
+     logs:
+       custom_components.adaptive_thermal_control: debug
+       custom_components.adaptive_thermal_control.mpc_controller: debug
+       custom_components.adaptive_thermal_control.thermal_model: debug
+   ```
+
+2. **Check diagnostic sensors**:
+   - All rooms have 10+ diagnostic sensors
+   - Check model parameters, MPC weights, optimization time
+   - Look for `unknown` or `unavailable` states
+
+3. **Join the community**:
+   - Report issue on [GitLab](https://gitlab.com/YOUR_USERNAME/adaptive-thermal-control/-/issues)
+   - Include logs, configuration, and error description
+   - Be patient - this is a complex system!
+
 ## Support
 
 - **Issues**: [GitLab Issues](https://gitlab.com/YOUR_USERNAME/adaptive-thermal-control/-/issues)
