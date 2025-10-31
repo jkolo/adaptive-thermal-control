@@ -309,13 +309,14 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
                 # Check if valve supports set_position
                 state = self.hass.states.get(valve_entity)
                 if state is None:
-                    _LOGGER.warning(
-                        "%s: Valve entity %s not found during init, assuming PWM needed",
+                    # Valve not available yet - skip and check at runtime
+                    # Don't assume PWM - let _set_single_valve() detect capabilities
+                    _LOGGER.debug(
+                        "%s: Valve entity %s not available during init, will detect control mode at runtime",
                         self._attr_name,
                         valve_entity,
                     )
-                    needs_pwm = True
-                    break
+                    continue  # Skip this valve, check others
 
                 supported_features = state.attributes.get("supported_features", 0)
                 # ValveEntityFeature.SET_POSITION = 4
@@ -923,12 +924,32 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
                         position,
                     )
                 else:
-                    _LOGGER.warning(
-                        "%s: Valve %s does not support set_position but PWM mode not active. "
-                        "This should not happen - check initialization.",
+                    # Valve doesn't support set_position - fallback to PWM
+                    # This can happen when valve wasn't available during init
+                    _LOGGER.info(
+                        "%s: Valve %s doesn't support set_position, using PWM fallback",
                         self._attr_name,
                         entity_id,
                     )
+                    await self._pwm_controller.set_duty_cycle(
+                        valve_entity=entity_id,
+                        duty_cycle=position,
+                        valve_delay=0.0,
+                    )
+
+            elif domain == "switch":
+                # Switch entity - should always use PWM
+                # This fallback handles switch entities that weren't detected during init
+                _LOGGER.info(
+                    "%s: Switch entity %s requires PWM control, using PWM fallback",
+                    self._attr_name,
+                    entity_id,
+                )
+                await self._pwm_controller.set_duty_cycle(
+                    valve_entity=entity_id,
+                    duty_cycle=position,
+                    valve_delay=0.0,
+                )
 
             else:
                 _LOGGER.warning("Unsupported valve domain: %s", domain)
