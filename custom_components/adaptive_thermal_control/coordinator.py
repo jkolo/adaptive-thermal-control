@@ -15,7 +15,6 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
@@ -363,17 +362,30 @@ class AdaptiveThermalCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return adjusted.get(zone_id, 0.0)
 
     async def async_check_ready(self) -> None:
-        """Check if coordinator is ready to operate.
+        """Check if coordinator sensors are available (non-blocking).
 
-        Raises:
-            ConfigEntryNotReady: If essential sensors are unavailable
+        This method logs warnings for missing sensors but doesn't block setup,
+        as sensors may become available shortly after Home Assistant starts.
+        The coordinator's _fetch_sensor_data() method handles missing sensors
+        gracefully during normal operation.
+
+        Note:
+            This is intentionally lenient to avoid timing issues during HA startup.
+            If sensors are genuinely misconfigured, warnings will appear in logs.
         """
         # Check if outdoor temp sensor exists (if configured)
         if self.outdoor_temp_entity:
             outdoor_state = self.hass.states.get(self.outdoor_temp_entity)
             if outdoor_state is None:
-                raise ConfigEntryNotReady(
-                    f"Outdoor temperature sensor {self.outdoor_temp_entity} not found"
+                _LOGGER.warning(
+                    "Outdoor temperature sensor %s not yet available - "
+                    "will be used when it becomes ready",
+                    self.outdoor_temp_entity,
+                )
+            else:
+                _LOGGER.debug(
+                    "Outdoor temperature sensor %s is available",
+                    self.outdoor_temp_entity,
                 )
 
         # Check room temperature sensors
@@ -384,8 +396,17 @@ class AdaptiveThermalCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if temp_entity:
                 temp_state = self.hass.states.get(temp_entity)
                 if temp_state is None:
-                    raise ConfigEntryNotReady(
-                        f"Temperature sensor {temp_entity} for {room_name} not found"
+                    _LOGGER.warning(
+                        "Temperature sensor %s for %s not yet available - "
+                        "will be used when it becomes ready",
+                        temp_entity,
+                        room_name,
+                    )
+                else:
+                    _LOGGER.debug(
+                        "Temperature sensor %s for %s is available",
+                        temp_entity,
+                        room_name,
                     )
 
-        _LOGGER.info("Coordinator ready check passed")
+        _LOGGER.info("Coordinator ready check completed (sensors may still be initializing)")
