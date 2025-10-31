@@ -16,8 +16,9 @@ from homeassistant.components.climate import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -355,6 +356,82 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             self._attr_hvac_action = HVACAction.IDLE
 
         # Write updated state
+        self.async_write_ha_state()
+
+    async def async_added_to_hass(self) -> None:
+        """Register callbacks when entity is added to hass."""
+        # Call parent implementation (handles coordinator subscription)
+        await super().async_added_to_hass()
+
+        # Subscribe to temperature sensor state changes for immediate updates
+        self.async_on_remove(
+            async_track_state_change_event(
+                self.hass,
+                [self._room_temp_entity],
+                self._async_sensor_state_changed,
+            )
+        )
+
+        _LOGGER.debug(
+            "%s: Subscribed to temperature sensor %s state changes",
+            self._attr_name,
+            self._room_temp_entity,
+        )
+
+    @callback
+    def _async_sensor_state_changed(self, event) -> None:
+        """Handle temperature sensor state change.
+
+        This callback is triggered immediately when the temperature sensor
+        state changes, providing real-time temperature updates instead of
+        waiting for the coordinator's 10-minute update cycle.
+
+        Args:
+            event: State change event containing old_state and new_state
+        """
+        new_state = event.data.get("new_state")
+
+        if new_state is None or new_state.state in ("unknown", "unavailable"):
+            _LOGGER.debug(
+                "%s: Temperature sensor became unavailable",
+                self._attr_name,
+            )
+            self._attr_current_temperature = None
+        else:
+            try:
+                old_temp = self._attr_current_temperature
+
+                self._attr_current_temperature = float(new_state.state)
+
+                # Log recovery when sensor becomes available after being unavailable
+                if old_temp is None:
+                    _LOGGER.info(
+                        "%s: Temperature sensor recovered: %.1f°C",
+                        self._attr_name,
+                        self._attr_current_temperature,
+                    )
+                else:
+                    _LOGGER.debug(
+                        "%s: Temperature updated: %.1f°C → %.1f°C",
+                        self._attr_name,
+                        old_temp,
+                        self._attr_current_temperature,
+                    )
+
+                # Trigger control update when temperature changes significantly
+                # (only if temperature was previously None - recovery case)
+                if old_temp is None:
+                    self.hass.async_create_task(self._async_control_heating())
+
+            except (ValueError, TypeError) as err:
+                _LOGGER.warning(
+                    "%s: Failed to parse temperature from sensor: %s",
+                    self._attr_name,
+                    err,
+                )
+                self._attr_current_temperature = None
+
+        # Update state in Home Assistant
         self.async_write_ha_state()
 
     async def async_update(self) -> None:
