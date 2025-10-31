@@ -58,6 +58,7 @@ from .const import (
 from .coordinator import AdaptiveThermalCoordinator
 from .mpc_controller import MPCConfig, MPCController
 from .pi_controller import PIController
+from .pwm_controller import PWMController
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -202,12 +203,25 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         self._mpc_controller: MPCController | None = None
         self._mpc_config = mpc_config
 
+        # PWM controller for ON/OFF valves (T4.5.1, T4.5.2)
+        # 30-minute PWM period is optimal for floor heating (thermal inertia)
+        self._pwm_controller = PWMController(
+            hass=hass,
+            period=1800.0,  # 30 minutes
+            min_on_time=300.0,  # 5 minutes
+            min_off_time=300.0,  # 5 minutes
+        )
+
+        # Auto-detect valve control mode (T4.5.3)
+        self._valve_control_mode = self._detect_valve_control_mode()
+
         _LOGGER.info(
-            "Initialized climate entity: %s (entity_id: %s, room temp: %s, valves: %s)",
+            "Initialized climate entity: %s (entity_id: %s, room temp: %s, valves: %s, control_mode: %s)",
             self._attr_name,
             self._entity_id,
             self._room_temp_entity,
             self._valve_entities,
+            self._valve_control_mode,
         )
 
     @property
@@ -224,6 +238,7 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             ATTR_MPC_STATUS: self._mpc_status,
             ATTR_MPC_FAILURE_COUNT: self._mpc_failure_count,
             ATTR_MPC_LAST_FAILURE_REASON: self._mpc_last_failure_reason,
+            "valve_control_mode": self._valve_control_mode,  # T4.5.3: position or pwm
         }
 
         # Add control quality RMSE (T3.6.2)
@@ -252,6 +267,70 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             attrs["predicted_temps"] = self._predicted_temps
 
         return attrs
+
+    def _detect_valve_control_mode(self) -> str:
+        """Auto-detect valve control mode (T4.5.3).
+
+        Returns:
+            "position" if all valves support position control
+            "pwm" if any valve requires PWM (switch or valve without set_position)
+
+        Note:
+            This method is called during initialization. If all valves support
+            position control (number.* or valve.* with set_position), we use
+            direct position commands. Otherwise, we use PWM for time-proportioned
+            ON/OFF control.
+        """
+        valve_entities = self._valve_entities
+        if isinstance(valve_entities, str):
+            valve_entities = [valve_entities]
+
+        needs_pwm = False
+
+        for valve_entity in valve_entities:
+            domain = valve_entity.split(".")[0]
+
+            if domain == "number":
+                # number.* entities support set_value → position control
+                continue
+
+            if domain == "switch":
+                # switch.* entities only support ON/OFF → PWM required
+                needs_pwm = True
+                _LOGGER.info(
+                    "%s: Switch valve detected (%s), will use PWM control",
+                    self._attr_name,
+                    valve_entity,
+                )
+                break
+
+            if domain == "valve":
+                # Check if valve supports set_position
+                state = self.hass.states.get(valve_entity)
+                if state is None:
+                    _LOGGER.warning(
+                        "%s: Valve entity %s not found during init, assuming PWM needed",
+                        self._attr_name,
+                        valve_entity,
+                    )
+                    needs_pwm = True
+                    break
+
+                supported_features = state.attributes.get("supported_features", 0)
+                # ValveEntityFeature.SET_POSITION = 4
+                supports_set_position = (supported_features & 4) != 0
+
+                if not supports_set_position:
+                    # Valve doesn't support set_position → PWM required
+                    needs_pwm = True
+                    _LOGGER.info(
+                        "%s: Valve without set_position detected (%s), will use PWM control",
+                        self._attr_name,
+                        valve_entity,
+                    )
+                    break
+
+        return "pwm" if needs_pwm else "position"
 
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator.
@@ -688,16 +767,43 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
             await self._set_single_valve(valve_id, position)
 
     async def _set_single_valve(self, entity_id: str, position: float) -> None:
-        """Set a single valve entity.
+        """Set a single valve entity (T4.5.3: with PWM support).
+
+        This method automatically chooses between position control and PWM
+        based on the valve capabilities detected during initialization.
 
         Args:
             entity_id: Entity ID of the valve
             position: Valve position in percent (0-100)
+
+        Note:
+            - For valves with position control (number.*, valve.* with set_position):
+              Direct position commands are used
+            - For ON/OFF valves (switch.*, valve.* without set_position):
+              PWM (Pulse Width Modulation) is used for time-proportioned control
         """
-        # Determine valve type and set accordingly
         domain = entity_id.split(".")[0]
 
         try:
+            # Check if we should use PWM for this valve
+            use_pwm = self._valve_control_mode == "pwm"
+
+            if use_pwm and (domain == "switch" or domain == "valve"):
+                # Use PWM for ON/OFF control (T4.5.1, T4.5.2)
+                _LOGGER.debug(
+                    "%s: Setting valve %s to %.1f%% using PWM",
+                    self._attr_name,
+                    entity_id,
+                    position,
+                )
+                await self._pwm_controller.set_duty_cycle(
+                    valve_entity=entity_id,
+                    duty_cycle=position,
+                    valve_delay=0.0,  # Future: get from config
+                )
+                return
+
+            # Otherwise, use position control
             if domain == "number":
                 # Number entity - set value directly
                 await self.hass.services.async_call(
@@ -706,17 +812,15 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
                     {"entity_id": entity_id, "value": position},
                     blocking=True,
                 )
-            elif domain == "switch":
-                # Switch entity - ON/OFF (PWM will be added in Phase 4)
-                service = "turn_on" if position > 50.0 else "turn_off"
-                await self.hass.services.async_call(
-                    "switch",
-                    service,
-                    {"entity_id": entity_id},
-                    blocking=True,
+                _LOGGER.debug(
+                    "%s: Set number valve %s to %.1f%%",
+                    self._attr_name,
+                    entity_id,
+                    position,
                 )
+
             elif domain == "valve":
-                # Valve entity - check if it supports set_position
+                # Valve entity with set_position support
                 state = self.hass.states.get(entity_id)
                 if state is None:
                     _LOGGER.warning("Valve entity %s not found", entity_id)
@@ -735,26 +839,22 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
                         {"entity_id": entity_id, "position": position},
                         blocking=True,
                     )
-                else:
-                    # Valve only supports open/close - use simple on/off control
-                    # Position > 50% = open, <= 50% = close
-                    service = "open_valve" if position > 50.0 else "close_valve"
-                    await self.hass.services.async_call(
-                        "valve",
-                        service,
-                        {"entity_id": entity_id},
-                        blocking=True,
-                    )
                     _LOGGER.debug(
-                        "Valve %s does not support set_position, using %s instead",
-                        entity_id, service
+                        "%s: Set valve %s to position %.1f%%",
+                        self._attr_name,
+                        entity_id,
+                        position,
                     )
+                else:
+                    _LOGGER.warning(
+                        "%s: Valve %s does not support set_position but PWM mode not active. "
+                        "This should not happen - check initialization.",
+                        self._attr_name,
+                        entity_id,
+                    )
+
             else:
                 _LOGGER.warning("Unsupported valve domain: %s", domain)
-
-            _LOGGER.debug(
-                "Set valve %s to %.1f%% for %s", entity_id, position, self._attr_name
-            )
 
         except Exception as err:
             _LOGGER.error(
@@ -792,3 +892,22 @@ class AdaptiveThermalClimate(CoordinatorEntity, ClimateEntity):
         rmse = math.sqrt(mse)
 
         return rmse
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Cleanup when entity is removed from Home Assistant.
+
+        This method is called when the entity is being removed (integration
+        unload, entity deletion, etc.). We use it to cancel any pending
+        PWM schedules to avoid ghost valve control commands.
+        """
+        _LOGGER.debug("%s: Cleaning up PWM schedules", self._attr_name)
+
+        # Cancel all PWM schedules for this climate entity's valves
+        valve_entities = self._valve_entities
+        if isinstance(valve_entities, str):
+            valve_entities = [valve_entities]
+
+        for valve_entity in valve_entities:
+            await self._pwm_controller.cancel_schedule(valve_entity)
+
+        _LOGGER.info("%s: Entity removed, PWM schedules cancelled", self._attr_name)

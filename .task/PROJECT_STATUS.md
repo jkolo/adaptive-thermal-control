@@ -24,11 +24,11 @@
 | [Faza 1: Fundament](./phase-1-foundation.md) | ✅ **Praktycznie ukończona** | 96% (23/24) | 1 zadanie wymaga instalacji w HA (T1.8.2) | WYSOKI |
 | [Faza 2: Model termiczny](./phase-2-thermal-model.md) | ✅ **Ukończona** | 71% (15/21) | Kluczowe 100%, reszta opcjonalna | WYSOKI |
 | [Faza 3: MPC Core](./phase-3-mpc-core.md) | ✅ **Praktycznie ukończona** | 50% (19/38) | Wszystkie możliwe zadania ukończone! Pozostałe: tylko testy w HA (7 dni) | **WYSOKI** |
-| [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | ⏸️ Wstrzymana | 0% (0/29) | Czeka na testy w prawdziwym HA z Faz 1-3 | Średni |
+| [Faza 4: Zaawansowane funkcje](./phase-4-advanced-features.md) | 🟡 **Częściowo** | 14% (4/29) | PWM dla ON/OFF valves ✅ (critical for real hardware) | **WYSOKI** |
 | [Faza 5: Optymalizacja kosztów](./phase-5-cost-optimization.md) | ⏸️ Wstrzymana | 0% (0/27) | Czeka na Fazę 4 | Średni |
 | [Faza 6: Publikacja HACS](./phase-6-hacs-publication.md) | ⏸️ Wstrzymana | 0% (0/26) | Czeka na wszystkie poprzednie fazy | Niski |
 
-**Łącznie:** 197 zadań (61 ukończone formalne, ~121 ukończone praktyczne)
+**Łącznie:** 197 zadań (65 ukończone formalne, ~125 ukończone praktyczne)
 
 **🎯 KLUCZOWY MILESTONE:** Projekt gotowy do pierwszych testów w prawdziwym Home Assistant!
 
@@ -77,6 +77,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 **2. 🟡 Opcjonalne ulepszenia (można zrobić równolegle)**
    - [x] T3.5.2: Automatyczne dostrajanie MPC (service call) ✅
    - [x] T1.8.3: Rozszerz dokumentację README o Known Issues i Troubleshooting ✅
+   - [x] T4.5.1-4: PWM dla ON/OFF valves (krityczne dla rzeczywistego hardware!) ✅
    - [ ] Dodatkowe sensory diagnostyczne według potrzeb
 
 **3. 🟢 Po testach w HA: Faza 4-6**
@@ -162,6 +163,16 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
        - Community support links
      - Total: 243 lines added to README
      - README now complete for v1.0 users
+   - [x] PWM for ON/OFF valves (T4.5.1-4) ✅
+     - New module: `pwm_controller.py` (430 lines)
+     - 30-minute PWM period optimized for floor heating
+     - Minimum time enforcement (5 min ON/OFF) prevents rapid cycling
+     - Auto-detection of valve type (position vs PWM)
+     - Integration with climate.py - transparent to user
+     - Cleanup on entity removal
+     - 18 comprehensive unit tests (100% pass)
+     - Support for: `switch.*` and `valve.*` without set_position
+     - **CRITICAL:** Now works with real ON/OFF valves!
 
 ### Quick wins (łatwe zadania na początek):
 
@@ -182,11 +193,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Metryka | Aktualna | Cel v1.0 |
 |---------|----------|----------|
-| Lines of Code | ~8,500 | ~3000-5000 |
-| Test Coverage | ~69% (170 tests passing) | 80%+ |
-| Modules | 15 | ~15 ✅ |
-| Functions | ~130+ | ~120+ ✅ |
-| Classes | 16 | ~16 ✅ |
+| Lines of Code | ~9,000 | ~3000-5000 |
+| Test Coverage | ~70% (188 tests passing) | 80%+ |
+| Modules | 16 | ~15 ✅ |
+| Functions | ~140+ | ~120+ ✅ |
+| Classes | 17 | ~16 ✅ |
 
 ### Dokumentacja
 
@@ -203,11 +214,11 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 
 | Typ testu | Zaimplementowane | Przechodzące |
 |-----------|------------------|--------------|
-| Unit tests | 163 | 163 |
+| Unit tests | 181 | 181 |
 | Integration tests | 7 | 3* |
 | End-to-end tests | 0 | 0 |
 
-**Łącznie:** 170 testów przechodzących ✅ (4 integration tests mają problemy z RLS na danych syntetycznych)
+**Łącznie:** 188 testów przechodzących ✅ (4 integration tests mają problemy z RLS na danych syntetycznych)
 
 *Uwaga: 4 testy integracyjne RLS (test_integration_training.py) niestabilne na danych syntetycznych - do poprawienia później*
 
@@ -360,6 +371,7 @@ Miesiąc 6: [░░░░░░░░░░░░░░░░░░░░░░�
 | 2025-10-31 | PI controller tests - 23 tests covering step response, anti-windup, stability | Faza 1 (91%, ✅) |
 | 2025-10-31 | Automatic MPC tuning service - tune_mpc_parameters service call | Faza 3 (50%, ✅) |
 | 2025-10-31 | README documentation - Known Issues (64 lines) + Troubleshooting (179 lines) | Faza 1 (96%, ✅) |
+| 2025-10-31 | PWM for ON/OFF valves - complete implementation with 18 tests | Faza 4 (14%, ✅) |
 
 ---
 
